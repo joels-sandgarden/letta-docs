@@ -12,9 +12,6 @@ On the hot path, every extra analysis step spends model attention on the current
 
 That split matters because not every useful lesson belongs in the immediate reply. Some lessons describe durable preferences, corrections, or procedures that only help future turns, and background reflection gives those lessons a place to land.
 
-On the hot path, every extra analysis step spends model attention on the current turn and slows the user-facing exchange. Reflection moves that work into a separate pass that can revise memory after the turn completes, when the system can learn without interrupting the conversation.
-
-That split matters because not every useful lesson belongs in the immediate reply. Some lessons describe durable preferences, corrections, or procedures that only help future turns, and background reflection gives those lessons a place to land.
 
 ## Harness-side trigger path
 

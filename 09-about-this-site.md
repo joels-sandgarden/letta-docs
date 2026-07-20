@@ -10,7 +10,7 @@ This guide is for engineers adopting Letta, embedding it into another product, e
 
 ## How it was made
 
-Doc Holiday generated this guide by directly exploring the current `letta-code` and `letta-agent-sdk` repositories. The write-up follows the live code paths that explain the platform framing, including `src/agent/memory-filesystem.ts` (`resolveScopedMemoryDir`, `applyMemfsFlags`), `src/queue/turn-queue-runtime.ts` (`mergeQueuedTurnInput`), `src/channels/registry.ts` (`ChannelRegistry`, `initializeChannels`, `completePairing`), `src/mods/mod-engine.ts` (`createModEngine`, `loadLocalMods`), `src/app-server-client.ts` (`AppServerClient`, `runTurn`), `src/websocket/listen-client.ts` (`startListenerClient`), and the SDK files `letta-agent-sdk/src/protocol.ts`, `letta-agent-sdk/src/session.ts`, and `letta-agent-sdk/src/app-server-session.ts`.
+Doc Holiday generated this guide by directly exploring the current `letta-code` and `letta-agent-sdk` repositories. The write-up follows the live code paths that explain the platform framing, including `src/agent/memory-filesystem.ts` (`resolveScopedMemoryDir`, `applyMemfsFlags`), `src/queue/turn-queue-runtime.ts` (`mergeQueuedTurnInput`), `src/channels/registry.ts` (`ChannelRegistry`, `initializeChannels`, `completePairing`), and `src/mods/mod-engine.ts` (`createModEngine`, `loadLocalMods`). It also traces the SDK and app-server boundary through `letta-agent-sdk/src/protocol.ts`, `letta-agent-sdk/src/session.ts`, `letta-agent-sdk/src/app-server-session.ts`, `src/app-server-client.ts` (`AppServerClient`, `runTurn`), and `src/websocket/listen-client.ts` (`startListenerClient`).
 
 ## Scope and honesty
 

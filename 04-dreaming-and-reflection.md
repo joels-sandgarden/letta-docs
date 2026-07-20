@@ -26,7 +26,7 @@ The manual `letta dream` entry point in `src/cli/subcommands/dream.ts` exposes t
 
 ## Reflection subagent and MemFS worktree
 
-The worker stays narrow. `src/agent/subagents/builtin/reflection.md` limits it to `Bash` and `Edit`, tells it to read the transcript payload from `$TRANSCRIPT_PATH`, and tells it to write only under `$MEMORY_DIR`. The prompt separates durable memory from one-off chatter: it writes facts, preferences, and corrections into memory files, and it creates or updates `skills/` only when the conversation reveals a reusable workflow.
+The worker stays narrow, and the manual `letta dream` path defaults to the memory-tuned `letta/auto-memory` model handle. `src/agent/subagents/builtin/reflection.md` limits it to `Bash` and `Edit`, tells it to read the transcript payload from `$TRANSCRIPT_PATH`, and tells it to write only under `$MEMORY_DIR`. The prompt separates durable memory from one-off chatter: it writes facts, preferences, and corrections into memory files, and it creates or updates `skills/` only when the conversation reveals a reusable workflow.
 
 `src/cli/helpers/reflection-launcher.ts` handles the orchestration around that worker. It builds the transcript payload, opens a dedicated reflection worktree, launches the background subagent, and then finalizes the worktree when the run ends. The launcher writes the output into the git-tracked MemFS reflection worktree, then merges it back or leaves it pending based on the worktree result.
 

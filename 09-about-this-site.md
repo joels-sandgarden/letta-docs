@@ -37,8 +37,6 @@ Contact / repo note: [CONTACT_OR_REPO_LINK]
 
 ## Where to look in the code
 
-- `README.md` in `letta-code` explains the public harness framing and current product model.
-- `src/agent/memory-filesystem.ts`, `src/queue/turn-queue-runtime.ts`, and `src/channels/registry.ts` in `letta-code` show memory directory handling, turn merging, routing, and pairing.
-- `src/mods/mod-engine.ts` in `letta-code` describes local mod loading, diagnostics, and lifecycle.
-- `src/app-server-client.ts` and `src/websocket/listen-client.ts` in `letta-code` show app-server turn flow and the listener entrypoint.
-- `README.md`, `src/protocol.ts`, `src/session.ts`, and `src/app-server-session.ts` in `letta-agent-sdk` define the SDK surface, session flow, and the app-server boundary.
+- `src/agent/memory-filesystem.ts`, `src/queue/turn-queue-runtime.ts`, and `src/channels/registry.ts` in `letta-code` show memory directory handling, turn merging, and channel routing.
+- `src/mods/mod-engine.ts`, `src/app-server-client.ts`, and `src/websocket/listen-client.ts` in `letta-code` show local mod loading, app-server turns, and the listener boundary.
+- `letta-agent-sdk/src/protocol.ts`, `letta-agent-sdk/src/session.ts`, and `letta-agent-sdk/src/app-server-session.ts` define the SDK surface and session boundary.

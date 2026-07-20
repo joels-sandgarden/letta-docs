@@ -19,6 +19,8 @@ The official Letta Docs pages cover setup and configuration for [channels](/lett
 
 The registry layer owns discovery, startup, and routing. `src/channels/plugin-registry.ts` decides which channels exist and loads them, `src/channels/plugin-types.ts` defines the metadata, config schema, and message action contract that plugins expose, and `src/channels/service.ts` gives the rest of the harness a stable facade for account, route, runtime, and snapshot operations. That boundary keeps channel policy in one place even as surface behavior changes.
 
+The shared plugin contract keeps bundled and user-installed channels on the same footing. A plugin publishes its identity, declares the account config shape it understands, and exposes message-action hooks through one seam, and the registry uses that seam whether it loads a first-party channel from the repository or a user channel from the local channels directory.
+
 The bundled first-party plugins live under `src/channels/slack/`, `src/channels/telegram/`, `src/channels/discord/`, `src/channels/whatsapp/`, `src/channels/signal/`, and `src/channels/custom/`. The registry loads those plugins directly.
 
 User-installed plugins sit under `~/.letta/channels/<channel-id>/channel.json`. The loader reads that manifest, resolves the manifest `entry` path relative to the channel directory, and imports the module dynamically. The first-party `custom` plugin stays the explicit extension point: it ships a schema-driven config surface, and it gives headless user plugins a predictable shape.
@@ -26,6 +28,8 @@ User-installed plugins sit under `~/.letta/channels/<channel-id>/channel.json`. 
 ## Inbound traffic enters the shared conversation path
 
 The adapter stops raw platform payloads at the boundary. `src/channels/registry.ts` wires each adapter's `onMessage` into the registry, `src/channels/registry-inbound.ts` resolves the route and policy, and `src/channels/processor.ts` turns the message into a `ChannelTurnSource` and formatted content. Downstream code never handles the raw Slack, Telegram, Discord, WhatsApp, or Signal envelope; it only sees normalized content plus the minimal provenance needed for routing and attribution.
+
+A route binds one platform chat to one agent conversation pair, and the channel turn source carries forward only the minimal provenance Letta needs for attribution and routing. Thread and chat identifiers matter only when they preserve the correct conversation boundary, not as standalone identity markers.
 
 ```mermaid
 graph LR
@@ -67,6 +71,8 @@ A schedule-driven or cron-driven turn can also post back to Slack, Telegram, Dis
 ## Queueing keeps channel bursts inside one turn
 
 When a channel message arrives mid turn, the listener usually queues it behind active work instead of interleaving it. The queue runtime can coalesce compatible items into one payload, so a burst of messages stays attached to one turn when the scope matches. `src/websocket/listener/inbound-dispatch.ts` decides whether to process immediately or enqueue, `src/websocket/listener/queue.ts` pumps queued work, and `src/queue/queue-runtime.ts` with `src/queue/turn-queue-runtime.ts` define the coalescing behavior that the agent sees.
+
+Because the queue preserves turn order, a channel burst does not splice itself into the middle of an active turn, even when the same agent remains reachable from multiple surfaces.
 
 ## Permission mode follows the conversation
 

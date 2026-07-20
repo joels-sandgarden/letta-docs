@@ -52,7 +52,7 @@ If the checker still needs human input, `src/websocket/listener/turn.ts` hands t
 
 ### Sandboxed execution
 
-The harness wraps the launched process only after the earlier gates clear. The sandbox layer chooses a backend when the host can support one, then adds a backend-specific policy around the launcher; when the host cannot support a backend, the code warns and continues with the non-kernel guard tier.
+The harness wraps the launched process only after the earlier gates clear. The sandbox layer chooses a backend when the host can support one, then adds a backend-specific policy around the launcher; when the host cannot support a backend, the code warns and continues with the normal guard layer.
 
 ### Post-hooks
 

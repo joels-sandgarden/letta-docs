@@ -78,7 +78,7 @@ Sandboxing stays best effort, not magical. When the host cannot provide a backen
 
 ## Related seams
 
-Skills, subagents, and mods form the adjacent extension layer, and the turn lifecycle exposes them on every surface that streams a conversation. [The app server and the SDK](./08-the-app-server-and-the-sdk.md) shows where that client boundary meets the programmatic SDK, while [Skills, subagents, and mods](./05-skills-subagents-and-mods.md) explains the neighboring extension model.
+Skills, subagents, and mods form the adjacent extension layer, and the turn lifecycle exposes them on every surface that streams a conversation. [The app server and the SDK](./08-the-app-server-and-the-sdk.md) show where that client boundary meets the programmatic SDK, while [Skills, subagents, and mods](./05-skills-subagents-and-mods.md) explains the neighboring extension model.
 
 ## Where to look in the code
 

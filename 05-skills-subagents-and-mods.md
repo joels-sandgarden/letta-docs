@@ -1,6 +1,6 @@
 # Skills, Subagents, and Mods
 
-Extending an agent can mean giving it knowledge, giving it help via delegation, or changing what the harness itself can do. In Letta Code, those three moves stay separate on purpose: skills shape prompt-time knowledge, subagents shape delegation boundaries, and mods shape the host harness.
+Extending an agent can mean giving it knowledge, giving it help via delegation, or changing what the harness itself can do. In the Letta agent harness, letta-code, those three moves stay separate on purpose: skills shape prompt-time knowledge, subagents shape delegation boundaries, and mods shape the host harness.
 
 Skills are the lightest surface, and they answer a simple question: what procedure should the agent remember at prompt time? `discoverSkills()` walks four scopes in order of precedence — project, agent, global, bundled — and it resolves duplicate skill IDs by keeping the highest-priority source. The runtime selector in `skill-sources.ts` trims that set when a session asks for `all`, `noSkills`, or `noBundledSkills`, but it keeps the precedence rules intact. Each skill stays a recursive `SKILL.MD` file, which keeps the reuse unit small and legible instead of turning the system into a general knowledge store.
 
@@ -30,9 +30,11 @@ Official docs live at https://docs.letta.com/letta-agent/skills, https://docs.le
 
 ## Where to look in the code
 
-- `src/agent/skills.ts` and `src/agent/skill-sources.ts` — discovery, precedence, and source selection.
-- `src/websocket/listener/skill-injection.ts` and `src/reminders/engine.ts` — reminder injection at turn time.
-- `src/agent/subagents/index.ts` and `src/agent/subagents/manager.ts` — built-ins, custom discovery, launch, and report collection.
-- `src/agent/subagents/subagent-launcher.ts` — child environment, working directory, and memory isolation.
+- `src/agent/skills.ts` — discovery, precedence, and system reminder formatting.
+- `src/agent/skill-sources.ts` — source selection, `all`, and the `noSkills` / `noBundledSkills` filters.
+- `src/agent/subagents/index.ts` — built-in and custom subagent discovery.
+- `src/agent/subagents/manager.ts` — child launch, result collection, and retries.
+- `src/agent/subagents/subagent-launcher.ts` — child environment and working directory isolation.
 - `src/mods/mod-engine.ts` — mod loading, lifecycle, and registry orchestration.
-- `src/mods/tool-registry.ts`, `src/mods/permission-registry.ts`, and `src/mods/capabilities.ts` — the mod surface and shared registries.
+- `src/mods/tool-registry.ts` and `src/mods/permission-registry.ts` — shared tool and permission registries.
+- `src/mods/capabilities.ts` — the mod capability surface and presets.

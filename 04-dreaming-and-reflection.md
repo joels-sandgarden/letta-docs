@@ -12,7 +12,6 @@ On the hot path, every extra analysis step spends model attention on the current
 
 That split matters because not every useful lesson belongs in the immediate reply. Some lessons describe durable preferences, corrections, or procedures that only help future turns, and background reflection gives those lessons a place to land.
 
-
 ## Harness-side trigger path
 
 When `completeSuccessfulListenerTurn` in `src/websocket/listener/turn-completion.ts` finishes a turn, it appends the transcript delta with `appendTranscriptDeltaJsonl` and then calls `maybeLaunchPostTurnReflection`. That order keeps the trigger honest: the reflection gate sees the just-finished turn in the transcript state instead of guessing from stale context.

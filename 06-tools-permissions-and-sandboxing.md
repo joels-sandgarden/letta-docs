@@ -20,7 +20,7 @@ The concrete implementations live under `src/tools/impl/`.
 - Memory tools: `memory` and `memory_apply_patch` operate on the scoped memory filesystem; see [Memory blocks and the memory filesystem](./03-memory-blocks-and-the-memory-filesystem.md).
 - Delegation tools: `Task` launches subagents, and `MessageChannel` sends replies back through external channels when a notification arrives.
 - Skills: the skill layer stays adjacent to this page, and queued skill content enters the stream through `src/websocket/listener/skill-injection.ts` rather than through a separate memory system.
-- Mods: `src/mods/tool-registry.ts` lets mods register extra tools, so the harness can extend the tool surface without changing the core catalog.
+- Mods: extra tools extend the surface without changing the core catalog.
 
 For the larger extension model around skills, subagents, and mods, see [Skills, subagents, and mods](./05-skills-subagents-and-mods.md).
 
@@ -74,7 +74,7 @@ The current mode matters because it can auto-allow broad tool classes or keep th
 
 The harness probes the host before it wraps a launcher. On macOS, `src/sandbox/availability.ts` looks for `sandbox-exec`; on Linux, it checks for `bwrap` and verifies that unprivileged user namespaces actually work; on other platforms it reports that no filesystem sandbox backend exists. Memory-subagent filesystem sandboxing defaults on through `LETTA_FS_SANDBOX`, while cross-agent shell sandboxing stays opt-in so ordinary shell workflows do not break by default.
 
-The memory-subagent path and the shell path solve different problems. `src/agent/subagents/sandbox.ts` constrains a memory-subagent's whole child process so its own writes stay inside the scoped memory surface, while `src/tools/impl/shell-sandbox.ts` constrains shells launched by tools such as Bash and Shell so subprocesses inherit the same cross-agent guard. The policy builders set the writable roots and read-only roots for each posture, and `src/sandbox/wrap.ts` turns that policy into backend-specific arguments for `sandbox-exec` or `bwrap`.
+The memory-subagent path and the shell path solve different problems. `src/agent/subagents/sandbox.ts` constrains a memory-subagent's whole child process so its own writes stay inside the scoped memory surface, while `src/tools/impl/shell-sandbox.ts` constrains shells launched by tools such as Bash and Shell so subprocesses inherit the same cross-agent guard. `src/permissions/sandbox-policy.ts` sets the writable roots and read-only roots for each posture, and `src/sandbox/seatbelt.ts` or `src/sandbox/bwrap.ts` turns that policy into backend-specific arguments for `sandbox-exec` or `bwrap`.
 
 Sandboxing stays best effort, not magical. When the host cannot provide a backend, the harness logs a warning once and keeps running, because the code can only enforce what the environment supports. That keeps the guarantee honest: the client enforces the boundary when a kernel backend exists, and it falls back gracefully when it does not.
 

@@ -30,11 +30,9 @@ Official docs live at https://docs.letta.com/letta-agent/skills, https://docs.le
 
 ## Where to look in the code
 
-- `src/agent/skills.ts` — discovery, precedence, and system reminder formatting.
-- `src/agent/skill-sources.ts` — source selection, `all`, and the `noSkills` / `noBundledSkills` filters.
-- `src/agent/subagents/index.ts` — built-in and custom subagent discovery.
-- `src/agent/subagents/manager.ts` — child launch, result collection, and retries.
-- `src/agent/subagents/subagent-launcher.ts` — child environment and working directory isolation.
+- `src/agent/skills.ts` and `src/agent/skill-sources.ts` — discovery, precedence, and source selection.
+- `src/websocket/listener/skill-injection.ts` and `src/reminders/engine.ts` — reminder injection at turn time.
+- `src/agent/subagents/index.ts` and `src/agent/subagents/manager.ts` — built-ins, custom discovery, launch, and report collection.
+- `src/agent/subagents/subagent-launcher.ts` — child environment, working directory, and memory isolation.
 - `src/mods/mod-engine.ts` — mod loading, lifecycle, and registry orchestration.
-- `src/mods/tool-registry.ts` and `src/mods/permission-registry.ts` — shared tool and permission registries.
-- `src/mods/capabilities.ts` — the mod capability surface and presets.
+- `src/mods/tool-registry.ts`, `src/mods/permission-registry.ts`, and `src/mods/capabilities.ts` — the mod surface and shared registries.

@@ -21,19 +21,19 @@ The guide keeps the mental model on the current v2 path: memory helpers decide w
 This page and the rest of the field guide capture a dated snapshot of the v2 codebase. Some paths still change or remain partial, so the guide treats them as observed facts at the time of generation rather than permanent architecture. The official docs remain authoritative for user-facing guidance, and corrections are welcome when the code changes or this snapshot drifts.
 
 Generation stamp: latest observed `letta-code` main commit `5c236cb` dated `2026-07-20`.
-Contact / repo note: [contact/repo note]
+Contact / repo note: [CONTACT_OR_REPO_LINK]
 
 ## Table of contents
 
-- [00 The Big Picture](./00-the-big-picture.md)
-- [01 Memory and MemFS](./01-memory-and-memfs.md)
-- [02 Turn Queueing](./02-turn-queueing.md)
-- [03 Channels and Pairing](./03-channels-and-pairing.md)
-- [04 Mods](./04-mods.md)
-- [05 App Server Client](./05-app-server-client.md)
-- [06 SDK Sessions](./06-sdk-sessions.md)
-- [07 Protocol Surface](./07-protocol-surface.md)
-- [08 Drift and Limits](./08-drift-and-limits.md)
+- [the map of the v2 system](./00-the-big-picture.md)
+- [end-to-end trace of one turn: message → queue → context assembly → LLM loop → client-side tools → streamed reply](./01-anatomy-of-a-turn.md)
+- [agents vs conversations, turn serialization, steering mid-run, and self-scheduling](./02-conversations-queues-and-interrupts.md)
+- [the two-layer memory model: persona/human blocks and the git-tracked MemFS](./03-memory-blocks-and-the-memory-filesystem.md)
+- [sleep-time compute: how agents rewrite their own memory and learn skills in the background](./04-dreaming-and-reflection.md)
+- [the three extension mechanisms and why each exists](./05-skills-subagents-and-mods.md)
+- [client-side tool execution: hooks, approvals, permission modes, sandboxing](./06-tools-permissions-and-sandboxing.md)
+- [one agent on many surfaces: the channel plugin architecture](./07-channels.md)
+- [the websocket protocol seam and embedding agents programmatically](./08-the-app-server-and-the-sdk.md)
 
 ## Where to look in the code
 

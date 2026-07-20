@@ -68,7 +68,7 @@ When a channel message arrives mid turn, the listener usually queues it behind a
 
 Permission mode belongs to the conversation, not the surface. The listener keeps it on the long-lived runtime, writes it to remote settings, and checks it together with pending control requests and turn lifecycle state before it opens the next turn. That keeps approval behavior stable across reconnects and across surfaces.
 
-> Note: This reflects the mid-2026 codebase. Slack, Telegram, and Discord are the most established paths; WhatsApp and Signal are newer; `custom` remains the schema-driven extension point. Channel maturity stays uneven, so the registry covers more than any single adapter family.
+> Note: This reflects the mid-2026 codebase. Slack, Telegram, and Discord are the most established paths; WhatsApp and Signal are newer; `custom` remains the schema-driven extension point. The fleet stays uneven in maturity.
 
 ## Where to look in the code
 
@@ -77,4 +77,4 @@ Permission mode belongs to the conversation, not the surface. The listener keeps
 - `src/channels/registry-inbound.ts` — route resolution, policy checks, and inbound normalization.
 - `src/channels/processor.ts` — turn source construction and message formatting.
 - `src/tools/impl/message-channel.ts` — proactive outbound tool surface and channel-specific formatting.
-- `src/websocket/listener/queue.ts`, `src/queue/queue-runtime.ts`, `src/queue/turn-queue-runtime.ts`, `src/websocket/listener/permission-mode.ts` — queueing, coalescing, and conversation permission state.
+- `src/websocket/listener/queue.ts`, `src/queue/queue-runtime.ts`, `src/queue/turn-queue-runtime.ts`, `src/websocket/listener/permission-mode.ts` — queueing, coalescing, and permission state.

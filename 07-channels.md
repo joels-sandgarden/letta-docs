@@ -13,7 +13,7 @@ Related pages:
 - [/06-tools-permissions-and-sandboxing.md](/06-tools-permissions-and-sandboxing.md)
 - [/08-the-app-server-and-the-sdk.md](/08-the-app-server-and-the-sdk.md)
 
-The official Letta Docs pages cover setup and configuration for [channels](/letta-agent/channels), [scheduling](/letta-agent/scheduling), and [permissions](/letta-agent/permissions). This page stays at the architecture level and explains how those pieces fit together.
+The official Letta Docs pages cover setup and configuration for [channels](/letta-agent/channels), [scheduling](/letta-agent/scheduling), and [permissions](/letta-agent/permissions). This page stays at the architecture level and shows how the pieces fit together.
 
 ## Registry and plugin boundary
 
@@ -72,7 +72,7 @@ When a channel message arrives mid turn, the listener usually queues it behind a
 
 Permission mode belongs to the conversation, not the surface. The listener keeps it on the long-lived runtime, writes it to remote settings, and checks it together with pending control requests and turn lifecycle state before it opens the next turn. That keeps approval behavior stable across reconnects and across surfaces.
 
-Channel-routed conversations use the same per-conversation permission mode and pending control request checks as the rest of the harness. The channel boundary does not introduce a separate approval path; it only carries the same turn-level decisions through the surface adapter.
+Channel-routed conversations use the same per-conversation permission mode and pending control request checks as the rest of the harness. The channel layer does not introduce a separate approval path; it carries the same turn-level decisions through the surface adapter.
 
 > Note: This reflects the mid-2026 codebase. Slack, Telegram, and Discord are the most established paths; WhatsApp and Signal are newer; `custom` remains the schema-driven extension point. The fleet stays uneven in maturity.
 

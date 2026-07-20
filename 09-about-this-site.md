@@ -12,6 +12,10 @@ This guide is for engineers adopting Letta, embedding it into another product, e
 
 Doc Holiday generated this guide by directly exploring the current `letta-code` and `letta-agent-sdk` repositories. The write-up follows the live code paths that explain the platform framing, including `src/agent/memory-filesystem.ts` (`resolveScopedMemoryDir`, `applyMemfsFlags`), `src/queue/turn-queue-runtime.ts` (`mergeQueuedTurnInput`), `src/channels/registry.ts` (`ChannelRegistry`, `initializeChannels`, `completePairing`), and `src/mods/mod-engine.ts` (`createModEngine`, `loadLocalMods`). It also traces the SDK and app-server boundary through `letta-agent-sdk/src/protocol.ts`, `letta-agent-sdk/src/session.ts`, `letta-agent-sdk/src/app-server-session.ts`, `src/app-server-client.ts` (`AppServerClient`, `runTurn`), and `src/websocket/listen-client.ts` (`startListenerClient`).
 
+## What the guide emphasizes
+
+The guide keeps the mental model on the current v2 path: memory helpers decide where a scoped memory directory lives, turn input merges before it reaches the runtime, channel registry code buffers ingress until the listener is ready, and mods load through a dedicated engine that tracks ownership and diagnostics. The SDK files define the protocol and session boundary, so the public client stays separate from the app-server transport.
+
 ## Scope and honesty
 
 This page and the rest of the field guide capture a dated snapshot of the v2 codebase. Some paths still change or remain partial, so the guide treats them as observed facts at the time of generation rather than permanent architecture. The official docs remain authoritative for user-facing guidance, and corrections are welcome when the code changes or this snapshot drifts.

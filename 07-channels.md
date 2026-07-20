@@ -13,6 +13,8 @@ Related pages:
 - [/06-tools-permissions-and-sandboxing.md](/06-tools-permissions-and-sandboxing.md)
 - [/08-the-app-server-and-the-sdk.md](/08-the-app-server-and-the-sdk.md)
 
+The official Letta Docs pages cover setup and configuration for [channels](/letta-agent/channels), [scheduling](/letta-agent/scheduling), and [permissions](/letta-agent/permissions). This page stays at the architecture level and explains how those pieces fit together.
+
 ## Registry and plugin boundary
 
 The registry layer owns discovery, startup, and routing. `src/channels/plugin-registry.ts` decides which channels exist and loads them, `src/channels/plugin-types.ts` defines the metadata, config schema, and message action contract that plugins expose, and `src/channels/service.ts` gives the rest of the harness a stable facade for account, route, runtime, and snapshot operations. That boundary keeps channel policy in one place even as surface behavior changes.
@@ -60,6 +62,8 @@ The diagram keeps one registry boundary in the middle. Inbound traffic crosses i
 
 Outbound delivery reverses the same path. The processor and adapter shape the agent's reply for the target surface, then the adapter sends that payload back to the platform. Telegram uses HTML, Slack uses `mrkdwn`, and Signal uses text styles as examples of per-surface formatting, not as a universal spec. `src/tools/impl/message-channel.ts` gives the agent a proactive tool path: it can send on its own schedule, while each channel plugin keeps action discovery and dispatch underneath one shared tool surface.
 
+A schedule-driven or cron-driven turn can deliberately post back to Slack, Telegram, Discord, or another surface through `MessageChannel`, instead of only answering the inbound message that started the turn.
+
 ## Queueing keeps channel bursts inside one turn
 
 When a channel message arrives mid turn, the listener usually queues it behind active work instead of interleaving it. The queue runtime can coalesce compatible items into one payload, so a burst of messages stays attached to one turn when the scope matches. `src/websocket/listener/inbound-dispatch.ts` decides whether to process immediately or enqueue, `src/websocket/listener/queue.ts` pumps queued work, and `src/queue/queue-runtime.ts` with `src/queue/turn-queue-runtime.ts` define the coalescing behavior that the agent sees.
@@ -67,6 +71,8 @@ When a channel message arrives mid turn, the listener usually queues it behind a
 ## Permission mode follows the conversation
 
 Permission mode belongs to the conversation, not the surface. The listener keeps it on the long-lived runtime, writes it to remote settings, and checks it together with pending control requests and turn lifecycle state before it opens the next turn. That keeps approval behavior stable across reconnects and across surfaces.
+
+Channel-routed conversations use the same per-conversation permission mode and pending control request checks as the rest of the harness. The channel boundary does not introduce a separate approval path; it only carries the same turn-level decisions through the surface adapter.
 
 > Note: This reflects the mid-2026 codebase. Slack, Telegram, and Discord are the most established paths; WhatsApp and Signal are newer; `custom` remains the schema-driven extension point. The fleet stays uneven in maturity.
 

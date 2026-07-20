@@ -4,14 +4,13 @@
 
 Reflection, also called dreaming, moves learning off the hot path. The harness records the turn, then a separate pass rewrites durable memory so later turns can benefit without adding visible latency to the response.
 
-The production subsystem descends from Letta's sleep-time-compute research, and the product term for that background pass is dreaming. This page focuses on mechanics and sits between [03-memory](./03-memory-blocks-and-the-memory-filesystem.md) and [05-subagents](./05-skills-subagents-and-mods.md). For feature-level context, use the official [memory docs](https://docs.letta.com/letta-agent/memory) and [subagents docs](https://docs.letta.com/letta-agent/subagents).
+The production subsystem descends from Letta's sleep-time-compute research, and the product term for that background pass is dreaming. This page focuses on mechanics and sits between [03-memory-blocks-and-the-memory-filesystem](./03-memory-blocks-and-the-memory-filesystem.md) and [05-skills-subagents-and-mods](./05-skills-subagents-and-mods.md). For feature-level context, use the official [memory docs](https://docs.letta.com/letta-agent/memory) and [subagents docs](https://docs.letta.com/letta-agent/subagents).
 
 ## Why reflection exists
-Reflection, also called dreaming, moves learning off the hot path. The harness records the turn, then a separate pass rewrites durable memory so later turns can benefit without adding visible latency to the response.
 
-The production subsystem descends from Letta's sleep-time-compute research, and the product term for that background pass is dreaming. This page focuses on mechanics and sits between [03-memory-blocks-and-the-memory-filesystem](./03-memory-blocks-and-the-memory-filesystem.md) and [05-subagents](./05-skills-subagents-and-mods.md). For feature-level context, use the official [memory docs](https://docs.letta.com/letta-agent/memory) and [subagents docs](https://docs.letta.com/letta-agent/subagents).
+On the hot path, every extra analysis step spends model attention on the current turn and slows the user-facing exchange. Reflection moves that work into a separate pass that can revise memory after the turn completes, when the system can learn without interrupting the conversation.
 
-## Why reflection exists
+That split matters because not every useful lesson belongs in the immediate reply. Some lessons describe durable preferences, corrections, or procedures that only help future turns, and background reflection gives those lessons a place to land.
 
 On the hot path, every extra analysis step spends model attention on the current turn and slows the user-facing exchange. Reflection moves that work into a separate pass that can revise memory after the turn completes, when the system can learn without interrupting the conversation.
 

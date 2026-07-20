@@ -10,7 +10,7 @@ A single message can enter through `src/headless.ts`, `src/websocket/listener/in
 
 This design solves a simple problem: a conversation can receive messages faster than the model can answer them. The queue lets the harness preserve order without blocking the whole listener process, and the protocol surface can still show a clear snapshot of what is waiting.
 
-The queue and interrupt story belongs in [02 conversations, queues, and interrupts](./02-conversations-queues-and-interrupts.md), so this page only keeps the turn-level view. The channel path uses the same idea. `buildChannelTurnSource` in `src/channels/processor.ts` captures the channel, thread, and conversation identity that the turn needs later, so channel traffic enters the same lifecycle without losing provenance. The channel framing belongs in [07 channels](./07-channels.md).
+The queue and interrupt mechanics live in [02 conversations, queues, and interrupts](./02-conversations-queues-and-interrupts.md), so this page keeps only the turn-level view. The channel path uses the same idea. `buildChannelTurnSource` in `src/channels/processor.ts` captures the channel, thread, and conversation identity that the turn needs later, so channel traffic enters the same lifecycle without losing provenance. The channel framing belongs in [07 channels](./07-channels.md).
 
 ## The turn in motion
 
@@ -58,11 +58,11 @@ The listener does not hide these transitions from the surface. `src/websocket/li
 
 ## Completion closes the loop
 
-`src/websocket/listener/protocol-outbound.ts` and `src/websocket/listener/turn-completion.ts` close the turn after the reply finishes. `completeSuccessfulListenerTurn` emits the end event, appends transcript deltas, enqueues any follow-up continue text, and can launch post-turn reflection in the background. That background pass can rewrite memory later; the reflection story belongs in [04 dreaming and reflection](./04-dreaming-and-reflection.md).
+`src/websocket/listener/protocol-outbound.ts` and `src/websocket/listener/turn-completion.ts` close the turn after the reply finishes. `completeSuccessfulListenerTurn` emits the end event, appends transcript deltas, enqueues any follow-up continue text, and can launch post-turn reflection in the background. That background pass can rewrite memory after the turn, and the reflection story belongs in [04 dreaming and reflection](./04-dreaming-and-reflection.md).
 
 When the model returns nothing or the run fails, `src/agent/turn-recovery-policy.ts` decides whether the harness retries, recovers a paused approval, or gives up. That recovery path keeps empty replies and transient backend errors from looking like hard failures when a second attempt can still produce a useful answer.
 
-`TurnLifecycle` and the outbound protocol layer finish the job together. One object keeps the turn state honest inside the listener, and the other one tells the surface which part of the lifecycle it should show right now.
+`TurnLifecycle` and the outbound protocol layer finish the job together. One object keeps the turn state honest inside the listener, and the other tells the surface which part of the lifecycle it should show right now.
 
 ## Where to look in the code
 

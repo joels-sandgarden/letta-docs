@@ -24,7 +24,7 @@ Across all three, the session API and the protocol stay the same. What changes i
 
 ## Sessions and turn ownership
 
-The session abstraction in `src/session.ts` and `src/remote-client-session-core.ts` treats a session as an attachment to one conversation. Creating an agent and resuming an existing one follow different paths, but the agent itself outlives any one session handle. A session starts work, streams events during the turn, and then ends or stays open for the next turn.
+The session abstraction in `src/session.ts` and `src/remote-client-session-core.ts` treats a session as an attachment to one conversation. The agent itself outlives any one session handle, and a resumed session simply reattaches to the same agent or conversation. A session starts work, streams events during the turn, and then ends or stays open for the next turn.
 
 The SDK keeps mid turn behavior visible rather than hidden. When new input arrives while a turn runs, the runtime queues it and the SDK reports that state through queue update events. When the caller aborts, the SDK interrupts the active turn instead of waiting for it to finish. That makes sessions disposable handles, not the long lived identity of the agent.
 
@@ -32,7 +32,7 @@ The SDK keeps mid turn behavior visible rather than hidden. When new input arriv
 
 ## Repository resources
 
-`src/repositories.ts` gives the SDK a cloud repository client. In cloud mode, the SDK treats repositories as git repositories that the runtime materializes into the agent environment. After attachment, the agent reaches that content through ordinary filesystem tools, not through a separate search index.
+`src/repositories.ts` gives the SDK a cloud repository client. In cloud mode, the SDK treats repositories as git repositories that the runtime materializes into the agent environment. After attachment, the agent reaches that content through ordinary filesystem tools rather than through a separate search index.
 
 In the v1 server, repository content lived behind embedding backed folders and document search. As of v2, the seam moves to repository materialization and file access, which keeps the agent closer to the source material. For the broader v1 to v2 shift, see [The big picture](/00-the-big-picture.md).
 

@@ -1,6 +1,6 @@
 # The App Server and the SDK
 
-The Letta agent harness, `letta-code`, exposes an App Server so other surfaces can drive agents without embedding the harness. The Letta Agent SDK, `letta-agent-sdk`, uses that seam as a client and keeps the same session model while the runtime location changes.
+The Letta agent harness, `letta-code`, exposes an App Server so desktop, web, SDK, and custom clients can drive agents without embedding the harness. The Letta Agent SDK, `letta-agent-sdk`, treats that server as the programmatic seam and keeps one session model while the runtime moves between local, remote, and cloud setups.
 
 ## The App Server seam
 
@@ -55,25 +55,21 @@ flowchart LR
   ControlFlow[Control flow]
   EventFlow[Event flow]
 
-  SDK -->|websocket protocol| Server
-  Desktop -->|websocket protocol| Server
-  Web -->|websocket protocol| Server
-  Custom -->|websocket protocol| Server
+  SDK -->|websocket protocol| ControlFlow
+  Desktop -->|websocket protocol| ControlFlow
+  Web -->|websocket protocol| ControlFlow
+  Custom -->|websocket protocol| ControlFlow
+
+  ControlFlow -->|runtime start, input, approval, queue updates| Server
+  Server -->|stream deltas, loop status| EventFlow
+  EventFlow --> SDK
+  EventFlow --> Desktop
+  EventFlow --> Web
+  EventFlow --> Custom
 
   SDK -.-> Local[Spawned local]
   SDK -.-> Remote[Remote]
   SDK -.-> Cloud[Cloud]
-
-  SDK --> ControlFlow
-  Desktop --> ControlFlow
-  Web --> ControlFlow
-  Custom --> ControlFlow
-  ControlFlow -->|runtime start, input, approval, queue updates| Server
-  Server --> EventFlow
-  EventFlow -->|stream deltas, loop status| SDK
-  EventFlow -->|stream deltas, loop status| Desktop
-  EventFlow -->|stream deltas, loop status| Web
-  EventFlow -->|stream deltas, loop status| Custom
 ```
 
 ## Where to look in the code

@@ -36,7 +36,7 @@ That git path matters because it keeps memory changes auditable, reviewable, and
 
 ## What reflection produces
 
-Reflection can rewrite memory files and can create or update skill files under `skills/` when it discovers a reusable procedure. The routing contract in `letta-agent-sdk/src/dream/prompts/memory-routing-contract.md` uses the same split: system memory stays always on, skills capture conditionally loaded procedures, and reference memory keeps durable context that does not fit either of those buckets.
+Reflection can rewrite memory files and can create or update skill files under `skills/` when it discovers a reusable procedure. Those files give the harness an auditable record of what changed and keep the lesson available for later turns.
 
 When reflection finds a durable correction, it records that correction in files that the harness can inspect later. When it finds a reusable workflow, it promotes that workflow into a skill instead of leaving it buried in a single transcript.
 
@@ -57,7 +57,7 @@ The programmatic side in `letta-agent-sdk/src/dream/` runs a deeper pipeline tha
 
 `src/dream/workers.ts` creates the reflector and aggregator agents, `src/dream/agent.ts` owns the dream-agent state and MemFS policy, and `src/dream/runner.ts` runs each session to completion. `src/dream/prompts.ts` wires the prompt templates together, and `src/dream/prompts/memory-routing-contract.md` tells the worker when to route content into `system/`, `skills/`, or reference memory.
 
-The SDK also manages source selection and long-lived cursors. That makes it useful for backlog-style synthesis and multi-source review, not only for a single post-turn hook. The harness launches one background reflection after a turn. The SDK can collect many transcript snapshots, process them in parallel, and fold them into one target memory tree.
+The SDK also manages source selection and long-lived cursors. That makes it useful for backlog-style synthesis and multi-source review, not only for a single post-turn hook. The harness launches one background reflection after a turn, but the SDK can collect many transcript snapshots, process them in parallel, and fold them into one target memory tree.
 
 ## Honesty and current limits
 

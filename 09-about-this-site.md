@@ -1,6 +1,6 @@
 # About this site
 
-This field guide maps the current `letta-code` harness and the `letta-agent-sdk` client to the code that shapes them. It gives readers a compact mental model of the v2 Letta system: what each part does, how the parts fit together, and where the behavior lives in the repositories.
+This field guide maps the current `letta-code` harness and the `letta-agent-sdk` client to the code that shapes them. It gives readers a mental model of the v2 Letta system: what each part does, how the parts fit together, and where the behavior lives in the repositories.
 
 The official documentation at https://docs.letta.com covers quickstarts, feature how-tos, configuration, and protocol or API reference. This guide complements that material by staying at the system level. It keeps a reader close to the implementation without carrying old assumptions from earlier versions.
 

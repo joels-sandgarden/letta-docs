@@ -7,6 +7,11 @@ Reflection, also called dreaming, moves learning off the hot path. The harness r
 The production subsystem descends from Letta's sleep-time-compute research, and the product term for that background pass is dreaming. This page focuses on mechanics and sits between [03-memory](./03-memory-blocks-and-the-memory-filesystem.md) and [05-subagents](./05-skills-subagents-and-mods.md). For feature-level context, use the official [memory docs](https://docs.letta.com/letta-agent/memory) and [subagents docs](https://docs.letta.com/letta-agent/subagents).
 
 ## Why reflection exists
+Reflection, also called dreaming, moves learning off the hot path. The harness records the turn, then a separate pass rewrites durable memory so later turns can benefit without adding visible latency to the response.
+
+The production subsystem descends from Letta's sleep-time-compute research, and the product term for that background pass is dreaming. This page focuses on mechanics and sits between [03-memory-blocks-and-the-memory-filesystem](./03-memory-blocks-and-the-memory-filesystem.md) and [05-subagents](./05-skills-subagents-and-mods.md). For feature-level context, use the official [memory docs](https://docs.letta.com/letta-agent/memory) and [subagents docs](https://docs.letta.com/letta-agent/subagents).
+
+## Why reflection exists
 
 On the hot path, every extra analysis step spends model attention on the current turn and slows the user-facing exchange. Reflection moves that work into a separate pass that can revise memory after the turn completes, when the system can learn without interrupting the conversation.
 

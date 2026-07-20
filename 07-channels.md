@@ -1,8 +1,8 @@
 # Channels
 
-Slack, Telegram, Discord, terminal sessions, and the other Letta surfaces all reach the same agent and conversation. Letta keeps identity and memory with the agent and conversation, not with the surface that first received the message. This page explains how the channels subsystem preserves that boundary while still moving surface-specific traffic through the same conversation machinery as everything else.
+Slack, Telegram, Discord, terminal sessions, and the newer channel surfaces all reach the same agent and conversation. Letta keeps identity and memory with the agent and conversation, not with the surface that received the message first. The channels subsystem preserves that boundary and still moves surface traffic through the same conversation machinery as everything else.
 
-A surface is the chat system a person sees. A channel is Letta's internal integration for that surface. A route binds one chat on a surface to one agent conversation. An adapter translates native events into the harness's normalized form and sends replies back out. A turn source records the minimal provenance needed for routing and attribution. The queue holds work when the current turn cannot accept it. Permission mode governs which approvals the conversation accepts.
+A surface is the chat system a person sees. A channel is Letta's integration for that surface. A route binds one chat to one agent conversation. An adapter translates native events into the harness's normalized form and sends replies back out. A turn source records the minimal provenance needed for routing and attribution. The queue holds work when the current turn cannot accept it. Permission mode governs which approvals the conversation accepts.
 
 Related pages:
 - [/00-the-big-picture.md](/00-the-big-picture.md)
@@ -15,7 +15,7 @@ Related pages:
 
 ## Registry and plugin boundary
 
-The registry layer owns discovery, startup, and routing. `src/channels/plugin-registry.ts` decides which channels exist and loads them, `src/channels/plugin-types.ts` defines the metadata, config schema, and message action contract that plugins expose, and `src/channels/service.ts` gives the rest of the harness a stable facade for account, route, runtime, and snapshot operations. That boundary keeps channel policy in one place even when the surfaces differ.
+The registry layer owns discovery, startup, and routing. `src/channels/plugin-registry.ts` decides which channels exist and loads them, `src/channels/plugin-types.ts` defines the metadata, config schema, and message action contract that plugins expose, and `src/channels/service.ts` gives the rest of the harness a stable facade for account, route, runtime, and snapshot operations. That boundary keeps channel policy in one place even as surface behavior changes.
 
 The bundled first-party plugins live under `src/channels/slack/`, `src/channels/telegram/`, `src/channels/discord/`, `src/channels/whatsapp/`, `src/channels/signal/`, and `src/channels/custom/`. The registry loads those plugins directly.
 
@@ -58,11 +58,11 @@ The diagram keeps one registry boundary in the middle. Inbound traffic crosses i
 
 ## Outbound traffic uses the same boundary in reverse
 
-Outbound delivery reverses the same path. The processor and adapter render the agent's reply in the surface's native shape, then the adapter sends that payload back to the platform. Telegram uses HTML, Slack uses `mrkdwn`, and Signal uses text styles as examples of per-surface formatting, not as a universal spec. `src/tools/impl/message-channel.ts` gives the agent a proactive tool path: it can send on its own schedule, while each channel plugin keeps action discovery and dispatch underneath one shared tool surface.
+Outbound delivery reverses the same path. The processor and adapter shape the agent's reply for the target surface, then the adapter sends that payload back to the platform. Telegram uses HTML, Slack uses `mrkdwn`, and Signal uses text styles as examples of per-surface formatting, not as a universal spec. `src/tools/impl/message-channel.ts` gives the agent a proactive tool path: it can send on its own schedule, while each channel plugin keeps action discovery and dispatch underneath one shared tool surface.
 
 ## Queueing keeps channel bursts inside one turn
 
-When a channel message arrives mid turn, the listener usually queues it behind active work instead of interleaving it. The queue runtime can coalesce compatible items into one turn payload, so a burst of messages stays attached to one agent turn when the scope matches. `src/websocket/listener/inbound-dispatch.ts` decides whether to process immediately or enqueue, `src/websocket/listener/queue.ts` pumps queued work, and `src/queue/queue-runtime.ts` with `src/queue/turn-queue-runtime.ts` define the coalescing behavior that the agent sees.
+When a channel message arrives mid turn, the listener usually queues it behind active work instead of interleaving it. The queue runtime can coalesce compatible items into one payload, so a burst of messages stays attached to one turn when the scope matches. `src/websocket/listener/inbound-dispatch.ts` decides whether to process immediately or enqueue, `src/websocket/listener/queue.ts` pumps queued work, and `src/queue/queue-runtime.ts` with `src/queue/turn-queue-runtime.ts` define the coalescing behavior that the agent sees.
 
 ## Permission mode follows the conversation
 

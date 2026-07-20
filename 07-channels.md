@@ -62,7 +62,7 @@ The diagram keeps one registry boundary in the middle. Inbound traffic crosses i
 
 Outbound delivery reverses the same path. The processor and adapter shape the agent's reply for the target surface, then the adapter sends that payload back to the platform. Telegram uses HTML, Slack uses `mrkdwn`, and Signal uses text styles as examples of per-surface formatting, not as a universal spec. `src/tools/impl/message-channel.ts` gives the agent a proactive tool path: it can send on its own schedule, while each channel plugin keeps action discovery and dispatch underneath one shared tool surface.
 
-A schedule-driven or cron-driven turn can deliberately post back to Slack, Telegram, Discord, or another surface through `MessageChannel`, instead of only answering the inbound message that started the turn.
+A schedule-driven or cron-driven turn can also post back to Slack, Telegram, Discord, or another surface through `MessageChannel`, instead of only answering the inbound message that started the turn.
 
 ## Queueing keeps channel bursts inside one turn
 

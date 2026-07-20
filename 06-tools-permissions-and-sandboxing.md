@@ -14,7 +14,7 @@ Each tool family has a model-facing description under `src/tools/descriptions/`,
 
 - Execution tools: `Bash` and `Shell` launch terminal commands and carry the heavy work of package installs, scripts, and other shell tasks.
 - File tools: `Read`, `Edit`, and `Write` handle direct file work, while the path-oriented search helpers support lookup and targeting.
-- Search tools: `Grep` covers content search, and the related file-pattern helpers fill the same search role when a path filter helps more than a command line.
+- Search tools: `Grep` covers content search, and the related path helpers fill the same role when a path filter helps more than a command line.
 - Memory tools: `memory` and `memory_apply_patch` operate on the scoped memory filesystem; see [Memory blocks and the memory filesystem](./03-memory-blocks-and-the-memory-filesystem.md).
 - Delegation tools: `Task` launches subagents, and `MessageChannel` sends replies back through external channels when a notification arrives.
 - Skills: the skill layer stays adjacent to this page, and queued skill content enters the stream through `src/websocket/listener/skill-injection.ts` rather than through a separate memory system.
@@ -66,7 +66,7 @@ After hooks finish, the listener hands the final result back into the streaming 
 
 The permission model combines a mode with a rule stack. `src/permissions/startup.ts` and `src/permissions/cli.ts` set the starting mode, `src/permissions/loader.ts` merges settings from user, project, and local scopes, `src/permissions/session.ts` holds transient allow, deny, ask, and always-ask rules, and `src/mods/permission-registry.ts` adds mod-provided permissions and tool policies. The listener keeps per-conversation mode state in `src/websocket/listener/permission-mode.ts`, and `src/reminders/engine.ts` injects a permission-mode reminder so the model sees the active posture during the turn.
 
-The current mode matters because it can auto-allow broad tool classes or keep the harness in a stricter posture without changing the underlying rules. The listener does not invent a separate approval scheme for a surface without an interactive user; it still evaluates the same stack, and only a live approval transport can satisfy a true approval pause. For configuration examples, see the official [permissions docs](https://docs.letta.com/letta-agent/permissions).
+The current mode matters because it can auto-allow broad tool classes or keep the harness in a stricter posture without changing the underlying rules. A surface without an interactive user still runs the same stack, and only a live approval transport can satisfy an `ask` decision. For configuration examples, see the official [permissions docs](https://docs.letta.com/letta-agent/permissions).
 
 ## Sandboxing
 

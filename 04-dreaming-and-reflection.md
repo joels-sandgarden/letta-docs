@@ -2,9 +2,9 @@
 
 ## Overview
 
-Reflection, also called dreaming, moves learning off the hot path. The harness records what happened during the turn, then a separate pass rewrites durable memory so later turns can benefit from the lesson without adding visible latency to the current response.
+Reflection, also called dreaming, moves learning off the hot path. The harness records the turn, then a separate pass rewrites durable memory so later turns can benefit without adding visible latency to the response.
 
-The production subsystem descends from Letta's sleep-time-compute research, and the product term for that background pass is dreaming. This page covers the mechanics rather than the feature overview, and it picks up where [03-memory](./03-memory.md) ends and where [05-subagents](./05-subagents.md) begins.
+The production subsystem descends from Letta's sleep-time-compute research, and the product term for that background pass is dreaming. This page focuses on mechanics. It sits between [03-memory](./03-memory.md) and [05-subagents](./05-subagents.md).
 
 ## Why reflection exists
 

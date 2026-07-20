@@ -10,7 +10,9 @@ In v1, the server executed tools; v2 inverted that boundary so local and private
 
 ## The tool layer
 
-Each tool family has a model-facing description under `src/tools/descriptions/`, and those descriptions tell the model how to think about a tool before the harness checks permissions. The code keeps the tool layer broad rather than granular: each family maps to a role, and the harness decides which role fits a given call.
+The central tool assembly path runs through `src/tools/manager.ts` and `src/tools/toolset.ts`. Those files gather the built-in catalog, layer in the descriptions under `src/tools/descriptions/`, and let `src/mods/tool-registry.ts` extend the surface.
+
+The concrete implementations live under `src/tools/impl/`.
 
 - Execution tools: `Bash` and `Shell` launch terminal commands and carry the heavy work of package installs, scripts, and other shell tasks.
 - File tools: `Read`, `Edit`, and `Write` handle direct file work, while the path-oriented search helpers support lookup and targeting.
@@ -52,7 +54,7 @@ If the checker still needs human input, `src/websocket/listener/turn.ts` hands t
 
 ### Sandboxed execution
 
-The harness wraps the launched process only after the earlier gates clear. The sandbox layer chooses a backend when the host can support one, then adds a backend-specific policy around the launcher; when the host cannot support a backend, the code warns and continues with the normal guard layer.
+The harness wraps the launched process only after the earlier gates clear. `src/permissions/sandbox-gate.ts` and `src/permissions/sandbox-policy.ts` decide whether a sandboxed launch can run and which posture it gets, then `src/sandbox/seatbelt.ts` or `src/sandbox/bwrap.ts` adds the backend-specific wrapper around the launcher. When the host cannot support a backend, the code warns and continues with the normal guard layer.
 
 ### Post-hooks
 
@@ -82,9 +84,9 @@ Skills, subagents, and mods form the adjacent extension layer, and the turn life
 
 ## Where to look in the code
 
-- `src/websocket/listener/turn.ts` — orchestrates streamed turns and routes approval stops.
-- `src/websocket/listener/turn-approval.ts` — pauses for approval and resumes the stream.
-- `src/permissions/checker.ts` — evaluates modes, rules, hooks, and mod policies.
-- `src/reminders/engine.ts` and `src/websocket/listener/permission-mode.ts` — surface the active permission mode to the model.
-- `src/sandbox/availability.ts`, `src/sandbox/wrap.ts`, `src/agent/subagents/sandbox.ts`, and `src/tools/impl/shell-sandbox.ts` — detect and apply the sandbox backends.
-- `src/agent/skills.ts`, `src/websocket/listener/skill-injection.ts`, and `src/mods/tool-registry.ts` — discover skills, inject skill content, and register mod tools.
+- `src/tools/manager.ts` and `src/tools/toolset.ts` — assemble the tool catalog and mod extensions.
+- `src/hooks/index.ts` and `src/websocket/listener/turn-approval.ts` — observe tool calls and pause for approval.
+- `src/permissions/checker.ts`, `src/permissions/mode.ts`, `src/permissions/loader.ts`, and `src/permissions/session.ts` — decide whether a call can run.
+- `src/reminders/engine.ts` and `src/websocket/listener/permission-mode.ts` — keep the active permission posture visible during a turn.
+- `src/permissions/sandbox-gate.ts`, `src/permissions/sandbox-policy.ts`, and `src/sandbox/availability.ts` — choose whether the host can enter a sandboxed path.
+- `src/sandbox/seatbelt.ts`, `src/sandbox/bwrap.ts`, `src/agent/subagents/sandbox.ts`, and `src/tools/impl/shell-sandbox.ts` — apply the backend-specific launch wrappers for subagents and shell tools.

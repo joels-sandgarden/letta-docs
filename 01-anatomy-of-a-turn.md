@@ -1,12 +1,12 @@
 # Anatomy of a Turn
 
-This page explains how one ordinary user message moves through Letta Code, the Letta agent harness, from arrival to the moment the streamed reply settles. It gives the mental model behind the turn lifecycle so the reader can see why the harness queues work, rebuilds context, hands off to the engine, and then closes the loop again.
+This page explains how one ordinary user message moves through Letta Code, the Letta agent harness, from arrival to streamed reply completion. It gives the mental model behind the turn lifecycle so the reader can see why the harness queues work, rebuilds context, hands off to the engine, and then closes the loop again.
 
-A single message can enter through `src/headless.ts`, `src/websocket/listener/inbound-dispatch.ts`, or `src/channels/processor.ts`. The entry point matters less than the shape that follows: the harness turns the input into a turn, keeps that turn ordered inside one conversation, and then rebuilds only the context that belongs to this run.
+A single message can enter through `src/headless.ts`, `src/websocket/listener/inbound-dispatch.ts`, or `src/channels/processor.ts`. The entry point matters less than the shape that follows: the harness turns the input into a queued turn, keeps it ordered inside one conversation, and then rebuilds only the context that belongs to this run.
 
 ## Arrival and queueing
 
-`dispatchInboundMessageWhenReady` decides whether the harness can process a message now or must place it behind work that already belongs to the same conversation. `QueueRuntime` in `src/queue/queue-runtime.ts` serializes turns per conversation, and `src/websocket/listener/conversation-runtime.ts` attaches that queue to the conversation scoped runtime so the listener can keep the queue, status, and approval state in one place.
+`dispatchInboundMessageWhenReady` decides whether the harness can process a message now or must place it behind work that already belongs to the same conversation. `QueueRuntime` in `src/queue/queue-runtime.ts` serializes turns per conversation, and `src/websocket/listener/conversation-runtime.ts` attaches that queue to the conversation-scoped runtime so the listener can keep the queue, status, and approval state in one place.
 
 This design solves a simple problem: a conversation can receive messages faster than the model can answer them. The queue lets the harness preserve order without blocking the whole listener process, and the protocol surface can still show a clear snapshot of what is waiting.
 
@@ -48,9 +48,9 @@ The harness uses that same rebuild step in headless mode, too. `src/headless.ts`
 
 ## Streaming, tools, and approvals
 
-`sendMessageStream` in `src/agent/message.ts` is the handoff into the engine and backend. It freezes a turn scoped tool snapshot, adds client skills, and sends the request with only the context that belongs to this turn. That design keeps the stream stable even when the global tool registry changes while the model still thinks.
+`sendMessageStream` in `src/agent/message.ts` is the handoff into the engine and backend. It freezes a turn-scoped tool snapshot, adds client skills, and sends the request with only the context that belongs to this turn. That design keeps the stream stable even when the global tool registry changes while the model still thinks.
 
-The loop status story in `src/types/protocol_v2.ts` reads as a progression rather than as a raw enum dump: the harness sends the request, waits for the model, retries when recovery asks for another attempt, processes the streamed answer, executes a client side tool, waits on approval when a protected action needs consent, and returns to waiting on input when the turn ends. `src/websocket/listener/turn-lifecycle.ts` makes that abstract progression concrete with a small state machine that moves between idle, command, active, and cancelling states.
+The loop status story in `src/types/protocol_v2.ts` reads as a progression rather than as a raw enum dump: the harness sends the request, waits for the model, retries when recovery asks for another attempt, processes the streamed answer, executes a client-side tool, waits on approval when a protected action needs consent, and returns to waiting on input when the turn ends. `src/websocket/listener/turn-lifecycle.ts` makes that abstract progression concrete with a small state machine that moves between idle, command, active, and cancelling states.
 
 `src/tools/manager.ts` decides which tools the model can see, which ones need approval, and which ones the harness can execute locally. `checkToolPermission` and `getToolApprovalPolicy` keep the policy close to the tool definition, while `src/websocket/listener/approval.ts` turns a protected tool call into a pause, sends the approval request over the websocket, and resumes the turn only after a decision arrives. The permission model belongs in [06 tools, permissions, and sandboxing](./06-tools-permissions-and-sandboxing.md) and the official [permissions docs](/letta-agent/permissions).
 

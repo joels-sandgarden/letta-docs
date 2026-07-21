@@ -1,6 +1,6 @@
 # Tools, permissions, and sandboxing
 
-The Letta agent harness, letta-code, runs tools on the user's machine while the model decides what to ask for next. That split keeps shell state, local files, and scoped memory inside the client boundary, where the harness can enforce permissions and sandboxing before any action reaches a tool. This page follows that path from turn orchestration to execution and back again.
+The Letta agent harness, letta-code, runs client-side tools on the user's machine while the model decides what to ask for next. That split keeps shell state, local files, and scoped memory inside the client boundary, where the harness can enforce permissions and sandboxing before any action reaches a tool. This page follows that path from turn orchestration to execution and back again.
 
 ## The design choice
 

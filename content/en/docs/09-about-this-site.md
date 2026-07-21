@@ -24,8 +24,8 @@ The guide keeps the mental model on the current v2 path: memory helpers decide w
 
 This page and the rest of the field guide capture a dated snapshot of the v2 codebase. Some paths still change or remain partial, so the guide treats them as observed facts at the time of generation rather than permanent architecture. The official docs remain authoritative for user-facing guidance, and corrections are welcome when the code changes or this snapshot drifts.
 
-Generation stamp: latest observed `letta-code` main commit `5c236cb` dated `2026-07-20`.
-Contact / repo note: [CONTACT_OR_REPO_LINK]
+Generation stamp: latest observed `letta-code` main commit `5c236cb`, dated 2026-07-20.
+Contact / repo note: corrections and suggestions are welcome via [GitHub issues on this site's repository](https://github.com/joels-sandgarden/letta-docs/issues).
 
 ## Table of contents
 

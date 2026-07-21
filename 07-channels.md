@@ -39,7 +39,7 @@ graph LR
     S3[Discord]
     S4[WhatsApp]
     S5[Signal]
-    S6[Terminal / custom]
+    S6[Custom / user plugins]
   end
 
   PR[plugin-registry]

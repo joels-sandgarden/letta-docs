@@ -4,7 +4,7 @@ The Letta agent harness, `letta-code`, exposes an App Server so desktop, web, SD
 
 ## The App Server seam
 
-In `letta-code`, `src/websocket/app-server.ts` starts a websocket server and `src/cli/subcommands/app-server.ts` exposes it through the `letta app-server` command. The server returns separate control and stream URLs, and the code keeps those channels distinct. The control channel carries runtime setup, inputs, approvals, and other commands that need a direct reply. The stream channel carries live turn output and state changes that observers need while a turn runs.
+In `letta-code`, `src/websocket/app-server.ts` starts a websocket server and `src/cli/subcommands/app-server.ts` exposes it through `letta server --listen`, with `letta app-server` remaining as a deprecated alias. The server returns separate control and stream URLs, and the code keeps those channels distinct. The control channel carries runtime setup, inputs, approvals, and other commands that need a direct reply. The stream channel carries live turn output and state changes that observers need while a turn runs.
 
 The heartbeat in `src/websocket/app-server.ts` watches transport liveness only. It pings connected sockets and reaps dead connections so a stalled client does not hold the control slot forever. It does not advance a turn or create any agent work. Authentication in `src/websocket/app-server-auth.ts` sits at the websocket upgrade boundary. Loopback listeners can run open, while non loopback listeners require either a capability token or a signed bearer token.
 

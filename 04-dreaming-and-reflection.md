@@ -30,7 +30,7 @@ The worker stays narrow. The manual `letta dream` path defaults to the memory-tu
 
 `src/cli/helpers/reflection-launcher.ts` handles the orchestration around that worker. It builds the transcript payload, opens a dedicated reflection worktree, launches the background subagent, and then finalizes the worktree when the run ends. The launcher coordinates the worktree flow, while the reflection subagent writes and commits the memory changes before the launcher merges them back or leaves them pending based on the worktree result.
 
-`src/agent/memory-worktree.ts` creates the git worktree, commits on a reflection branch, and either merges that branch into the parent memory repo or preserves a pending merge when conflict or manual merge work remains. `src/agent/memory-filesystem.ts` supplies the scoped memory root and the guard behavior that keeps the worker inside the intended checkout.
+`src/agent/memory-worktree.ts` creates the git worktree and reflection branch and then merges that branch into the parent memory repo (or preserves a pending merge); the reflection subagent is what commits the memory changes on the branch. `src/agent/memory-filesystem.ts` supplies the scoped memory root, while `buildReflectionMemoryScope` in `src/agent/memory-worktree.ts` provides the containment guard with `primaryRoot`, `writableRoots`, and `readonlyRoots`.
 
 That git path matters because it keeps memory changes auditable, reviewable, and revertible. The worker does not write opaque runtime state. It writes files, commits them, and hands the result back through git history.
 

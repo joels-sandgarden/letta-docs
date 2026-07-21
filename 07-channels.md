@@ -1,6 +1,6 @@
 # Channels
 
-Slack, Telegram, Discord, terminal sessions, and the newer channel surfaces all reach the same agent and conversation. Letta keeps identity and memory with the agent and conversation, not with the surface that received the message first. The channels subsystem preserves that boundary and still moves surface traffic through the same conversation machinery as everything else.
+Slack, Telegram, Discord, and the newer channel surfaces all reach the same agent and conversation. Terminal and CLI sessions are non-channel surfaces that reach that same agent through the websocket listener. Letta keeps identity and memory with the agent and conversation, not with the surface that received the message first. The channels subsystem preserves that boundary and still moves surface traffic through the same conversation machinery as everything else.
 
 A surface is the chat system a person sees. A channel is Letta's integration for that surface. A route binds one chat to one agent conversation. An adapter translates native events into the harness's normalized form and sends replies back out. A turn source records the minimal provenance needed for routing and attribution. The queue holds work when the current turn cannot accept it. Permission mode governs which approvals the conversation accepts.
 

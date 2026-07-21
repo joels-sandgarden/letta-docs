@@ -1,0 +1,12 @@
+{{- /*
+  Render ```mermaid fenced code blocks as actual diagrams.
+  The E25DX theme has no Mermaid support, so without this hook the block is
+  only syntax-highlighted as text. We emit a <pre class="mermaid"> node that
+  Mermaid.js processes on the client and set a page-store flag; the library
+  loader lives in layouts/_partials/main-content/footer.html (HTML output
+  only). Emitting the loader here, gated on a once-per-page Store flag, is
+  unreliable: the flag survives across output-format renders and the dev
+  server's incremental rebuilds, so the HTML render can silently skip it.
+*/ -}}
+{{- .Page.Store.Set "hasMermaid" true -}}
+<pre class="mermaid">{{ .Inner | htmlEscape | safeHTML }}</pre>

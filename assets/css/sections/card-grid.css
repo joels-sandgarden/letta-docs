@@ -1,0 +1,141 @@
+/*
+  PROJECT OVERRIDE of themes/E25DX/assets/css/sections/card-grid.css.
+  Restyled to match the gloria.dev marketing site's resource cards: white
+  cards on hairline borders, pastel icon tiles stacked above the title, and
+  a left-aligned Sora section heading.
+*/
+.card-grid-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--padding_x2);
+
+  padding: 0 var(--padding);
+}
+
+.card-grid-header {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  gap: var(--padding);
+}
+
+.card-grid-header h2 {
+  font-size: clamp(1.75rem, 5.5vw, 2.5rem);
+}
+
+.card-grid-header p {
+  color: var(--color-fade);
+  max-width: 44rem;
+}
+
+.card-grid-body {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  margin: 0 auto;
+  width: 100%;
+  gap: var(--padding);
+}
+
+.card-grid-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
+  gap: var(--padding);
+  padding: var(--padding);
+
+  background: var(--card);
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  transition: all 0.3s;
+}
+
+.card-grid-card:hover {
+  transform: translateY(-0.25rem);
+  box-shadow: 0 16px 40px -24px rgb(23 18 38 / .3);
+}
+
+.card-grid-card header {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--padding);
+}
+
+.card-grid-card header span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+
+  background: var(--tile, var(--background-subtle));
+  border-radius: 12px;
+  fill: #1c2733;
+}
+
+.card-grid-card header span svg {
+  width: 24px;
+  height: 24px;
+}
+
+.card-grid-card:nth-child(1) header span { --tile: #e2f1ed; }
+.card-grid-card:nth-child(2) header span { --tile: #e5edf4; }
+.card-grid-card:nth-child(3) header span { --tile: #edf0e6; }
+.card-grid-card:nth-child(4) header span { --tile: #f2ede2; }
+
+:root[data-color="dark"] .card-grid-card header span {
+  --tile: rgb(255 255 255 / .08) !important;
+  fill: var(--color);
+}
+
+.card-grid-card p {
+  font-size: .875rem;
+  color: var(--color-fade);
+}
+
+.card-grid-card footer .btn {
+  justify-content: center;
+}
+
+@media (min-width: 1024px) {
+  .card-grid-body {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  /* Share the bento section's width so section left edges align. */
+  .card-grid-section {
+    min-height: 50svh;
+    justify-content: center;
+    max-width: 80svw;
+    width: 100%;
+    margin: 0 auto;
+    padding: 0;
+  }
+}
+
+@media (min-width: 1024px) and (orientation: portrait) {
+  .card-grid-section {
+    min-height: 30svh;
+    justify-content: center;
+  }
+}
+
+@media (min-width: 1280px) {
+  .card-grid-body {
+    gap: var(--padding_x2);
+  }
+
+  .card-grid-card {
+    padding: var(--padding_x2);
+  }
+}
+
+@media (min-width: 1440px) {
+  .card-grid-section {
+    max-width: 80svw;
+    margin: 0 auto;
+    width: 100%;
+  }
+}

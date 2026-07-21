@@ -1,0 +1,199 @@
+/*
+  PROJECT OVERRIDE of themes/E25DX/assets/css/theme.css.
+  Per the E25DX docs (https://dumindu.github.io/E25DX/docs/add-or-edit-css/), an
+  identically-named file in the project's assets/ shadows the theme's file. This
+  is a copy of the theme's theme.css with the design tokens remapped to the
+  DSPy Field Guide palette. Everything outside the brand tokens is kept
+  identical to the theme; re-sync this file when the E25DX submodule is updated.
+
+  Field Guide palette ("engineering notebook"): teal primary #0f766e/#2dd4bf,
+  plain white / near-black backgrounds, ink-slate foreground, restrained
+  two-stop teal-to-sky gradient on headline accents (no rainbow).
+*/
+:root {
+  --font-sans: "Instrument Sans", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  --font-display: "Space Grotesk", "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+
+  --primary: #0f766e;
+  --primary-strong: #115e59;
+  --brand-gradient: linear-gradient(100deg, #0f766e, #0284c7);
+
+  --background: #ffffff;
+  --background-subtle: rgb(15 118 110 / .05);
+  --background-hover: rgb(15 118 110 / .09);
+  --background-dim: rgb(15 118 110 / .04);
+  --card: #f7fafa;
+
+  --color: #1c2733;
+  --color-fade: rgb(28 39 51 / .55);
+  --color-nav: rgb(28 39 51 / .72);
+
+  --box-shadow: 0 25px 50px -12px rgb(28 39 51 / .18);
+
+  --model-background: #ffffff;
+  --model-foreground: rgb(15 118 110 / .04);
+  --model-box-shadow: 0 8px 32px 0 rgb(15 118 110 / .18);
+
+  --padding: 12px;
+  --padding_d2: 6px;
+  --padding_x2: 24px;
+
+  --blur: 4px;
+  --model-blur: 10px;
+
+  --border: #e2e8ec;
+  --border-nav: rgb(28 39 51 / .14);
+  --border-subtle: rgb(15 118 110 / .16);
+
+  --radius: 12px;
+
+  --anchor: #0f766e;
+  --hover: #0d9488;
+
+  /* base16 tomorrow */
+  --chroma-base00: var(--background-subtle);
+  --chroma-base01: #e0e0e0;
+  --chroma-base02: rgb(159 218 159/ .2);
+  --chroma-base03: #8e908c;
+  --chroma-base04: #969896;
+  --chroma-base05: #4d4d4c;
+  --chroma-base06: #282a2e;
+  --chroma-base07: #1d1f21;
+  --chroma-base08: #c82829;
+  --chroma-base09: #f5871f;
+  --chroma-base0A: #eab700;
+  --chroma-base0B: #718c00;
+  --chroma-base0C: #3e999f;
+  --chroma-base0D: #4271ae;
+  --chroma-base0E: #8959a8;
+  --chroma-base0F: #a3685a;
+
+  /* alert backgrounds */
+  --alert-note: rgb(from var(--chroma-base0D) r g b / .06);
+  --alert-tip: rgb(from var(--chroma-base0B) r g b / .06);
+  --alert-important: rgb(from var(--chroma-base0E) r g b / .06);
+  --alert-warning: rgb(from var(--chroma-base09) r g b / .06);
+  --alert-caution: rgb(from var(--chroma-base08) r g b / .06);
+  --alert-search: rgb(from var(--chroma-base0E) r g b / .06);
+  --alert-assignment: rgb(from var(--chroma-base0A) r g b / .06);
+  --alert-lab: rgb(from var(--chroma-base0B) r g b / .06);
+  --alert-recap: rgb(from var(--chroma-base0D) r g b / .06);
+
+  /* cover */
+  --cover-img-height: 32svh;
+  --section-item-cover-img-height: 24svh;
+
+  --site-header-height: 60px;
+}
+
+:root[data-color="dark"] {
+  --primary: #2dd4bf;
+  --primary-strong: #5eead4;
+  --brand-gradient: linear-gradient(100deg, #2dd4bf, #38bdf8);
+
+  --background: #14161a;
+  --background-subtle: rgb(255 255 255/ .05);
+  --background-hover: rgb(45 212 191/ .12);
+  --background-dim: rgb(255 255 255/ .03);
+  --card: #1b2025;
+
+  --color: #e8edf1;
+  --color-fade: rgb(232 237 241/ .55);
+  --color-nav: rgb(232 237 241/ .8);
+
+  --box-shadow: 0 25px 50px -12px rgb(0 0 0/ .5);
+
+  --model-background: #14161a;
+  --model-foreground: rgb(255 255 255/ .05);
+  --model-box-shadow: 0 8px 32px 0 rgb(0 0 0/ .4);
+
+  --border: rgb(255 255 255/ .12);
+  --border-nav: rgb(255 255 255/ .2);
+  --border-subtle: rgb(45 212 191/ .2);
+
+  --anchor: #2dd4bf;
+  --hover: #5eead4;
+
+  /* base16 tomorrow night */
+  --chroma-base00: var(--background-subtle);
+  --chroma-base01: #393939;
+  --chroma-base02: rgb(159 218 159/ .1);
+  --chroma-base03: #999999;
+  --chroma-base04: #b4b7b4;
+  --chroma-base05: #cccccc;
+  --chroma-base06: #e0e0e0;
+  --chroma-base07: #ffffff;
+  --chroma-base08: #f2777a;
+  --chroma-base09: #f99157;
+  --chroma-base0A: #ffcc66;
+  --chroma-base0B: #99cc99;
+  --chroma-base0C: #66cccc;
+  --chroma-base0D: #6699cc;
+  --chroma-base0E: #cc99cc;
+  --chroma-base0F: #a3685a;
+
+  /* alert backgrounds */
+  --alert-note: rgb(from var(--chroma-base0D) r g b / .12);
+  --alert-tip: rgb(from var(--chroma-base0B) r g b / .12);
+  --alert-important: rgb(from var(--chroma-base0E) r g b / .12);
+  --alert-warning: rgb(from var(--chroma-base09) r g b / .12);
+  --alert-caution: rgb(from var(--chroma-base08) r g b / .12);
+  --alert-search: rgb(from var(--chroma-base0E) r g b / .12);
+  --alert-assignment: rgb(from var(--chroma-base0A) r g b / .12);
+  --alert-lab: rgb(from var(--chroma-base0B) r g b / .12);
+  --alert-recap: rgb(from var(--chroma-base0D) r g b / .12);
+
+  --pf-background: var(--background);
+  --pf-text: var(--color-nav);
+  --pf-text-muted: var(--color-fade);
+  --pf-hover: var(--background-hover);
+  --pf-text-secondary: var(--color-nav);
+  --pf-modal-backdrop: var(--background-dim);
+  --pf-border: var(--border);
+  --pf-mark: var(--primary);
+  --pf-skeleton: var(--background-hover);
+}
+
+@view-transition {
+  navigation: auto;
+}
+
+/* From Small Tablet & Portrait */
+@media (min-width: 744px) and (orientation: portrait) {
+  :root {
+    --cover-img-height: 30svh;
+    --section-item-cover-img-height: 20svh;
+  }
+}
+
+/* From Large Tablet */
+@media (min-width: 1024px) {
+  :root {
+    --padding: 16px;
+    --padding_d2: 8px;
+    --padding_x2: 32px;
+
+    --cover-img-height: 43svh;
+    --section-item-cover-img-height: 28svh;
+  }
+}
+
+/* From Desktop & Landscape */
+@media (min-width: 1280px) and (orientation: landscape) {
+  :root {
+    --cover-img-height: 50svh;
+    --section-item-cover-img-height: 22svh;
+  }
+}
+
+/* gloria.dev: use the Sora display font for top-level headings, matching
+   the main site. Body text and lower-level headings stay in Instrument Sans. */
+.hero-header h2,
+.section-header h2,
+h1,
+h2 {
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
+}

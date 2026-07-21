@@ -1,0 +1,58 @@
+/*
+  PROJECT OVERRIDE of themes/E25DX/assets/css/components/button.css.
+  Buttons: solid primary (teal)
+  primary, white outline secondary. The base .btn is kept close to the theme
+  since docs components (copy buttons, card links) rely on it.
+*/
+.btn {
+  display: flex;
+  padding: var(--padding_d2);
+  gap: calc(var(--padding_d2)/2);
+  justify-items: center;
+  align-items: center;
+
+  background: var(--background-dim);
+  backdrop-filter: blur(--blur);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+
+  color: var(--color-nav);
+  fill: currentColor;
+  cursor: pointer;
+}
+
+.btn:hover, .btn:focus {
+  background: var(--background-hover);
+}
+
+.btn-primary {
+  background: var(--primary);
+  border: 1px solid var(--primary);
+  color: #fff;
+  font-weight: 600;
+}
+
+.btn-primary:hover, .btn-primary:focus {
+  background: var(--primary-strong);
+  border-color: var(--primary-strong);
+  color: #fff;
+}
+
+/* Light teal needs dark ink for contrast in dark mode. */
+:root[data-color="dark"] .btn-primary,
+:root[data-color="dark"] .btn-primary:hover,
+:root[data-color="dark"] .btn-primary:focus {
+  color: #14161a;
+}
+
+.btn-outline {
+  background: var(--card);
+  border: 1px solid var(--border-nav);
+  color: var(--color);
+  font-weight: 500;
+}
+
+.btn-outline:hover, .btn-outline:focus {
+  background: var(--card);
+  border-color: rgb(from var(--color) r g b / .35);
+}

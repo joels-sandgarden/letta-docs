@@ -1,0 +1,22 @@
+header:
+  title: Mental models, not API dumps.
+  description: Each page transfers the mental model of one Letta subsystem — what it is for, the design decisions behind it, and how it relates to its neighbors.
+
+items:
+  - col: col-5
+    icon: bento/rocket_launch
+    title: Get up to speed without reading a thousand files
+    description: The guide covers the harness's spine — the turn lifecycle, the conversation queue, the git-tracked memory filesystem, and background reflection — so you can hold the whole architecture in your head before opening a file.
+    badges: [ ]
+
+  - col: col-7
+    icon: bento/extension
+    title: Grounded in the source
+    description: Every claim cites real files and symbols from the letta-code and letta-agent-sdk repositories, and every page ends with a "Where to look in the code" map. Nothing here is folklore — it was read out of the code.
+    badges: [ Turn Lifecycle, MemFS, Dreaming, Skills & Mods ]
+
+  - col: col-7
+    icon: bento/shield
+    title: Complements the official docs
+    description: docs.letta.com owns quickstarts, feature how-tos, and the protocol reference. This guide covers what those docs have not assembled — the turn and queue semantics, the memory filesystem, the extension mechanisms as one design story, and the v1-to-v2 bridge.
+    badges: [ ]

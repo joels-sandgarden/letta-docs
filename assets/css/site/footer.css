@@ -1,0 +1,32 @@
+/*
+  PROJECT OVERRIDE of themes/E25DX/assets/css/site/footer.css.
+  Quieter footer to match the gloria.dev marketing site: hairline top border,
+  muted small text.
+*/
+#site-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--padding_d2);
+  text-align: center;
+  flex-wrap: wrap;
+  white-space: initial;
+  margin-top: var(--padding_x2);
+  padding: var(--padding_x2);
+  border-top: 1px solid rgb(from var(--color) r g b / .06);
+  color: var(--color-fade);
+  fill: currentColor;
+  font-size: .875rem;
+}
+
+#site-footer > a.btn-primary {
+  padding: 0 var(--padding_d2);
+  font-weight: 500;
+}
+
+/* From Large Tablet */
+@media (min-width: 1024px) {
+  #site-footer {
+    width: 100%;
+  }
+}

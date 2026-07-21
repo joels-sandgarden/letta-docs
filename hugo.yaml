@@ -1,0 +1,99 @@
+# Site config for the Letta Field Guide, ported from joels-sandgarden/dspy-docs
+# (the canonical moonshot-leadgen skeleton). baseURL is a placeholder — the
+# gh-pages workflow injects the real one at build; `hugo server` ignores it locally.
+baseURL: https://letta-docs.pages.dev/
+
+theme: E25DX
+
+enableGitInfo: true
+enableRobotsTXT: true
+
+disableKinds: [section, taxonomy, term]
+
+defaultContentLanguage: en
+
+languages:
+  en:
+    weight: 1
+    label: English
+    locale: en-US
+    contentDir: content/en
+    title: Letta Field Guide
+    params:
+      description: The Letta v2 agent harness, explained at the concept level
+
+# To omit the Google Analytics script, keep a ~ in place of the G-XXXXXXXXXX below.
+services:
+  googleAnalytics:
+    ID: ~
+
+markup:
+  highlight:
+    noClasses: false
+  goldmark:
+    renderer:
+      unsafe: true
+    parser:
+      attribute:
+        block: true
+        title: true
+    # Relative *.md cross-links between the generated pages are resolved to
+    # page URLs by layouts/_markup/render-link.html (overrides the theme hook).
+  tableOfContents:
+    pre: <nav id="TableOfContents" aria-label="Table of Contents">
+    post: </nav>
+
+# Serves each doc page as plain Markdown at <page>/index.md, alongside the
+# normal HTML at <page>/index.html, for LLMs to fetch/index directly.
+outputFormats:
+  markdown:
+    mediaType: text/markdown
+    baseName: index
+    isPlainText: true
+    isHTML: false
+
+outputs:
+  page:
+    - html
+    - markdown
+
+params:
+  project:
+    # To omit the startYear, put a ~ in its place.
+    startYear: ~
+    presentYear: 2026
+    repo:
+      main: https://github.com/letta-ai/letta-code
+    themeColor:
+      light: '#ffffff'
+      dark: '#14161a'
+
+  author:
+    name: doc.holiday
+    url: https://doc.holiday
+
+  logo: /logo.svg
+
+  pagination:
+    size: 6
+
+  enableOGXSEO: false # No automated OG image generation
+  enablePageFind: false # Bootstrap ships without search; run `pagefind --site public` after build to enable
+
+menus:
+  main:
+    # Use explicit `url`s (not pageRef): the docs section page kind is disabled,
+    # so pageRef:/docs can't resolve and would fall back to the home URL.
+    - identifier: home
+      name: Home
+      url: /
+      weight: 1
+      params:
+        icon: home
+    - identifier: docs
+      name: Field Guide
+      # TODO: flip to /docs/the-big-picture/ when page 00 lands (pending re-fire)
+      url: /docs/anatomy-of-a-turn/
+      weight: 2
+      params:
+        icon: menu_book

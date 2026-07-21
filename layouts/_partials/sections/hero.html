@@ -1,0 +1,27 @@
+<section class="hero-section">
+	<div class="hero-header">
+		{{ with resources.Get .svg }}
+			<h1 class="hero-svg" aria-label="{{ site.Title }}" style="margin-bottom: 4em">
+			{{ .Content | safeHTML }}
+			</h1>
+		{{ end }}
+
+		{{/* gloria.dev: badge/eyebrow pill. Guarded so an empty `badge` in the
+		     data removes it cleanly (and stops the E25DX theme default merging in). */}}
+		{{ with .badge }}<span class="badge">{{ . }}</span>{{ end }}
+		<h2>
+			{{ .title | markdownify }}
+		</h2>
+	</div>
+	{{/* gloria.dev: hero sub-heading. Guarded so an empty `description` removes it
+	     cleanly without leaving empty markup or falling back to the theme default. */}}
+	{{ with .description }}
+	<div class="hero-content">
+		<p>{{ . | markdownify }}</p>
+	</div>
+	{{ end }}
+	<div class="hero-controls">
+		<a href="{{ .btn_primary.url | relLangURL }}" class="btn btn-primary">{{ .btn_primary.label }}</a>
+		<a href="{{ .btn_secondary.url | relLangURL }}" class="btn btn-outline" {{ if (urls.Parse .btn_secondary.url).IsAbs }}target="_blank"{{ end }}>{{ .btn_secondary.label }}</a>
+	</div>
+</section>

@@ -1,0 +1,102 @@
+{{- /* Override of the E25DX main-content footer: prev/next links use
+     relative URLs (RelPermalink) so the site works on any host/port. */ -}}
+<footer id="article-footer">
+	{{ if .Date }}
+		{{ $created := .Date.Format "2006-01-02" }}
+		{{ $lastMod := .Lastmod.Format "2006-01-02" }}
+		<time datetime="{{ $created }}" title="{{ i18n "updated" }}: {{ $lastMod }}">
+			<span>{{ partial "icon.html" "calendar_month" }}</span>{{ i18n "created" }}: {{ $created }}
+		</time>
+	{{ else }}
+		{{ $lastMod := .Lastmod.Format "2006-01-02" }}
+		<time datetime="{{ $lastMod }}">
+			<span>{{ partial "icon.html" "calendar_month" }}</span>{{ i18n "updated" }}: {{ $lastMod }}
+		</time>
+	{{ end }}
+
+	{{ with index site.Data site.Language.Lang .Section "sidebar" }}
+
+		{{ $prevPageTitle := "" -}}
+		{{ $nextPageTitle := "" -}}
+		{{ $prevPageHref := "" -}}
+		{{ $nextPageHref := "" -}}
+
+		{{ $url := split $.RelPermalink "/" -}}
+		{{ $urlPageSlug := index $url (sub (len $url) 2) -}}
+		{{ $isSectionIndex := eq $urlPageSlug $.Section -}}
+		{{ $isActivePagePassed := false -}}
+		{{ $isNextPagePassed := false -}}
+
+		{{ range $group := . }}
+			{{ if $isNextPagePassed -}}
+				{{ break -}}
+			{{ end -}}
+
+			{{ range $page := $group.pages -}}
+				{{ $pageSlug := $page.title | urlize | replaceRE `\.` "-" -}}
+				{{ $isActivePage := or $isSectionIndex (eq $urlPageSlug $pageSlug) -}}
+
+				{{ if $isActivePagePassed -}}
+					{{ $nextPageTitle = $page.title -}}
+					{{ $nextPageHref = printf "%s%s/%s/" site.Home.RelPermalink $.Section $pageSlug -}}
+					{{ $isNextPagePassed = true -}}
+					{{ break -}}
+				{{ else if $isActivePage -}}
+					{{ $isActivePagePassed = true -}}
+				{{ else -}}
+					{{ $prevPageTitle = $page.title -}}
+					{{ $prevPageHref = printf "%s%s/%s/" site.Home.RelPermalink $.Section $pageSlug -}}
+				{{ end -}}
+			{{ end -}}
+		{{ end -}}
+
+		{{ if ne $prevPageHref "" -}}
+		<a href="{{ $prevPageHref }}">{{ partial "icon.html" "keyboard_arrow_left" }} {{ i18n "previous" }}</a>
+		{{ else -}}
+		<a class="hidden">{{ partial "icon.html" "keyboard_arrow_left" }} {{ i18n "previous" }}</a>
+		{{ end -}}
+
+		{{ if ne $nextPageHref "" -}}
+		<a href="{{ $nextPageHref }}">{{ i18n "next" }} {{ partial "icon.html" "keyboard_arrow_right" }}</a>
+		{{ else -}}
+		<a class="hidden">{{ i18n "next" }} {{ partial "icon.html" "keyboard_arrow_right" }}</a>
+		{{ end -}}
+
+	{{ end -}}
+</footer>
+
+{{- /* Mermaid loader: emitted once per page (HTML output only) when the
+     render-codeblock-mermaid hook saw a diagram in this page's content.
+     .Content is rendered at single.html:74, before this partial runs, so
+     the store flag is reliably set by now. */ -}}
+{{ if .Store.Get "hasMermaid" }}
+<style>
+  pre.mermaid { background: none; border: 0; padding: 0; text-align: center; }
+  pre.mermaid:not([data-processed]) { visibility: hidden; }
+</style>
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+
+  const nodes = document.querySelectorAll('pre.mermaid');
+  // Preserve each diagram's source so we can re-render on theme change.
+  nodes.forEach((n) => { n.dataset.graph = n.textContent; });
+
+  const render = () => {
+    const dark = document.documentElement.getAttribute('data-color') === 'dark';
+    mermaid.initialize({ startOnLoad: false, theme: dark ? 'dark' : 'default' });
+    nodes.forEach((n) => {
+      n.removeAttribute('data-processed');
+      n.innerHTML = n.dataset.graph;
+    });
+    mermaid.run({ nodes });
+  };
+
+  render();
+
+  // Re-render when the reader toggles light/dark.
+  new MutationObserver(render).observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ['data-color'],
+  });
+</script>
+{{ end }}

@@ -1,0 +1,56 @@
+name: Deploy to Cloudflare Pages
+
+# Manual-only until the Cloudflare Pages project + secrets exist
+# (CLOUDFLARE_API_TOKEN / CLOUDFLARE_ACCOUNT_ID); auto-triggers would fail
+# red on every push. Restore push/pull_request triggers when CF is set up.
+on:
+  workflow_dispatch:
+
+# Allow one concurrent deployment per ref; cancel superseded in-progress runs.
+concurrency:
+  group: pages-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  deployments: write
+  pull-requests: write # so the Pages action can comment the preview URL on PRs
+
+env:
+  # Pinned: newer Hugo emits deprecation warnings from the E25DX theme
+  # (.Site.Data in 0.156, .Site.LanguageCode in 0.158). Bump alongside a theme update.
+  HUGO_VERSION: 0.155.0
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout (with theme submodule)
+        uses: actions/checkout@v7
+        with:
+          submodules: recursive
+          fetch-depth: 0 # full history; required by enableGitInfo
+
+      - name: Setup Hugo (extended, pinned)
+        uses: peaceiris/actions-hugo@v3
+        with:
+          hugo-version: ${{ env.HUGO_VERSION }}
+          extended: true
+
+      - name: Build
+        run: hugo --gc --minify
+
+      # Pagefind search is disabled in the bootstrap. To enable it later, flip
+      # params.enablePageFind to true in hugo.yaml and uncomment the step below.
+      # - name: Build search index
+      #   run: npx -y pagefind --site public
+
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v4
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: >-
+            pages deploy public
+            --project-name=dspy-docs
+            --branch=${{ github.head_ref || github.ref_name }}

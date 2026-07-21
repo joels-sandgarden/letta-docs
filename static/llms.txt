@@ -1,0 +1,22 @@
+# Letta Field Guide
+
+> A concept-level field guide to the Letta v2 agent harness, written by Doc Holiday
+> (https://doc.holiday) by exploring the letta-code and letta-agent-sdk sources directly.
+> Each page explains why a subsystem exists, its central abstractions, and how it relates
+> to its neighbors. Every doc page is also served as plain markdown at <page-url>/index.md.
+
+## Pages
+
+- [Anatomy of a Turn](/docs/anatomy-of-a-turn/): one turn traced end to end, from message to streamed reply
+- [Dreaming and Reflection](/docs/dreaming-and-reflection/): sleep-time compute — how agents rewrite their own memory in the background
+- [Skills, Subagents, and Mods](/docs/skills-subagents-and-mods/): the three extension mechanisms and why each exists
+- [Tools, Permissions, and Sandboxing](/docs/tools-permissions-and-sandboxing/): client-side tool execution and the gates around it
+- [Channels](/docs/channels/): one agent on many surfaces — Slack, Telegram, Discord, and custom
+- [The App Server and the SDK](/docs/the-app-server-and-the-sdk/): the websocket protocol seam and embedding agents programmatically
+- [About This Site](/docs/about-this-site/): scope, audience, provenance
+
+## See also
+
+- Official Letta documentation: https://docs.letta.com/letta-agent
+- letta-code source: https://github.com/letta-ai/letta-code
+- letta-agent-sdk source: https://github.com/letta-ai/letta-agent-sdk

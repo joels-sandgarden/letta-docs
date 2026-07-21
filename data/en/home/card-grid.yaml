@@ -1,0 +1,11 @@
+header:
+  title: How this site is made.
+  description: The guide is generated and maintained by Doc Holiday, the AI-native software platform for crystal-clear documentation and release notes.
+
+items:
+  - icon: build/doc-holiday
+    title: Doc Holiday
+    description: Doc Holiday is the AI-native software platform that automatically transforms code commits and product specs into crystal-clear documentation and release notes that stay up-to-date while you stay out late.
+    link:
+      label: Learn more
+      url: "https://doc.holiday/"

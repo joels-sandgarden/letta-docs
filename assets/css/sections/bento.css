@@ -1,0 +1,168 @@
+/*
+  PROJECT OVERRIDE of themes/E25DX/assets/css/sections/bento.css.
+  The bento cards take the gloria.dev marketing site's signature pastel
+  tool-card treatment: muted teal / slate / sage / sand tints, white icon
+  tiles, chip badges. Dark mode swaps to deep tinted versions of each hue.
+*/
+.bento-section {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--padding);
+  margin: 0 auto;
+
+  padding: 0 var(--padding);
+}
+
+.bento-header {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  gap: var(--padding);
+  margin-bottom: var(--padding);
+}
+
+.bento-header h2 {
+  font-size: clamp(1.75rem, 5.5vw, 2.5rem);
+}
+
+.bento-header p {
+  color: var(--color-fade);
+  max-width: 44rem;
+}
+
+.bento-card {
+  --bento-ink: #1c2733;
+  --bento-ink-soft: rgb(28 39 51 / .72);
+  --bento-chip: rgb(255 255 255 / .65);
+  --bento-tile: rgb(255 255 255 / .85);
+
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
+  background: var(--bento-tint, var(--background-subtle));
+  border-radius: 20px;
+  border: 1px solid rgb(from var(--color) r g b / .05);
+  color: var(--bento-ink);
+
+  padding: var(--padding);
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+/* nth-of-type, not nth-child: the optional <header> would shift child counts */
+.bento-card:nth-of-type(1) { --bento-tint: #e2f1ed; }
+.bento-card:nth-of-type(2) { --bento-tint: #e5edf4; }
+.bento-card:nth-of-type(3) { --bento-tint: #edf0e6; }
+.bento-card:nth-of-type(4) { --bento-tint: #f2ede2; }
+
+:root[data-color="dark"] .bento-card {
+  --bento-ink: var(--color);
+  --bento-ink-soft: var(--color-nav);
+  --bento-chip: rgb(255 255 255 / .08);
+  --bento-tile: rgb(255 255 255 / .08);
+  border-color: rgb(255 255 255 / .08);
+}
+
+:root[data-color="dark"] .bento-card:nth-of-type(1) { --bento-tint: #12211d; }
+:root[data-color="dark"] .bento-card:nth-of-type(2) { --bento-tint: #141c24; }
+:root[data-color="dark"] .bento-card:nth-of-type(3) { --bento-tint: #1a1f14; }
+:root[data-color="dark"] .bento-card:nth-of-type(4) { --bento-tint: #241d12; }
+
+.bento-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 16px 40px -20px rgb(28 39 51 / .3);
+}
+
+.bento-card h3 {
+  margin-bottom: var(--padding);
+  color: var(--bento-ink);
+}
+
+.bento-card p {
+  color: var(--bento-ink-soft);
+}
+
+.bento-card footer {
+  margin-top: var(--padding);
+  padding-top: var(--padding);
+  gap: 1rem;
+
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  border-top: 1px solid rgb(from var(--bento-ink) r g b / .12);
+}
+
+.bento-card .badge {
+  background: var(--bento-chip);
+  color: var(--bento-ink);
+  border-radius: 999px;
+}
+
+.bento-card .card-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  margin-bottom: var(--padding);
+
+  background: var(--bento-tile);
+  border-radius: 12px;
+  box-shadow: 0 1px 2px rgb(23 18 38 / .08);
+  fill: var(--bento-ink);
+}
+
+.bento-card .card-icon svg {
+  width: 24px;
+  height: 24px;
+}
+
+.col-7, .col-5 {
+  grid-column: span 12;
+}
+
+@media (min-width: 744px) {
+  .col-7 {
+    grid-column: span 7;
+  }
+
+  .col-5 {
+    grid-column: span 5;
+  }
+
+  .bento-section {
+    grid-template-columns: repeat(12, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .bento-section {
+    max-width: 80svw;
+    min-height: 80svh;
+    padding: 0;
+  }
+}
+
+@media (min-width: 1024px) and (orientation: portrait) {
+  .bento-section {
+    min-height: 50svh;
+  }
+}
+
+@media (min-width: 1280px) {
+  .bento-section {
+    min-height: 60svh;
+    gap: var(--padding_x2);
+  }
+
+  .bento-card {
+    padding: var(--padding_x2);
+  }
+
+  .bento-card footer {
+    margin-top: var(--padding_x2);
+    padding-top: var(--padding_x2);
+  }
+}

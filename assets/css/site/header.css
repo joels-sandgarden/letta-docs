@@ -1,0 +1,151 @@
+/*
+  PROJECT OVERRIDE of themes/E25DX/assets/css/site/header.css.
+  Restyled to match the gloria.dev marketing site header: translucent bar over
+  the hero wash, plain sentence-case nav links (no icons, no uppercase), small
+  wordmark, and a violet "Get started" CTA pill on the right.
+*/
+#site-header {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-areas:
+    "logo actions"
+    "menu menu";
+
+  align-items: center;
+  background: rgb(from var(--background) r g b / .82);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgb(from var(--color) r g b / .06);
+}
+
+#site-header-logo {
+  grid-area: logo;
+  padding: var(--padding) var(--padding);
+}
+
+#site-header-logo a {
+  display: flex;
+  align-items: center;
+}
+
+#site-header-actions {
+  grid-area: actions;
+  display: flex;
+  align-items: center;
+  gap: var(--padding);
+  padding-right: var(--padding);
+}
+
+#header-cta {
+  padding: 7px 14px;
+  font-size: .875rem;
+  font-weight: 600;
+  border-radius: 10px;
+  white-space: nowrap;
+}
+
+#site-header-menu {
+  grid-area: menu;
+  display: flex;
+  flex-wrap: wrap;
+
+  background: var(--background-subtle);
+  backdrop-filter: blur(var(--blur));
+  padding: var(--padding_d2);
+  gap: var(--padding_d2);
+
+  border-top: 1px solid rgb(from var(--color) r g b / .06);
+}
+
+#site-header-menu a {
+  display: flex;
+  padding: 6px 14px;
+  align-items: center;
+
+  font-size: .95rem;
+  font-weight: 500;
+  color: var(--color-nav);
+
+  border-radius: 999px;
+  border: 1px solid transparent;
+}
+
+/* Marketing nav links are plain text — hide the theme's menu icons. */
+#site-header-menu a span {
+  display: none;
+}
+
+#site-header-menu a:not(.active):hover {
+  background: var(--background-hover);
+  color: var(--color);
+}
+
+#site-header-menu a.active {
+  background: var(--background-subtle);
+  color: var(--color);
+  border: 1px solid var(--border-subtle);
+  pointer-events: none;
+}
+
+#search-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#repo-main {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  fill: var(--color-nav);
+}
+
+#repo-main svg {
+  width: 22px;
+  height: 22px;
+}
+
+#repo-main:hover {
+  fill: var(--color);
+}
+
+@media (max-width: 743px) {
+  .pf-trigger-shortcut {
+    display: none !important;
+  }
+}
+
+@media (min-width: 1024px) {
+  #site-header {
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    grid-template-areas: "logo menu actions";
+
+    /*
+      Keep a stable bar height that matches the logo cell (26px wordmark +
+      var(--padding) top & bottom). On doc pages the header's own logo is
+      hidden (the left sidebar shows the wordmark instead), so without this the
+      header would collapse to the shorter nav height and the bar would appear
+      to shrink when navigating away from the home page.
+    */
+    min-height: calc(26px + var(--padding) * 2);
+
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  #site-header-logo {
+    justify-self: start;
+  }
+
+  #site-header-menu {
+    background: none;
+    backdrop-filter: none;
+    border: none;
+    justify-content: center;
+    justify-self: center;
+  }
+
+  #site-header-actions{
+    justify-self: end;
+  }
+}

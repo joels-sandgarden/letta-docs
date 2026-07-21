@@ -1,0 +1,19 @@
+{{- /*
+  Override of the E25DX theme's render-link.html.
+
+  The guide pages are written by Doc Holiday as plain markdown that cross-links
+  siblings by filename (e.g. [02-the-lm-layer.md](./02-the-lm-layer.md)). The
+  theme's hook emits such destinations verbatim, which 404s on the rendered
+  site. This override resolves relative *.md destinations to the target page's
+  URL (like Hugo's embedded link hook) and otherwise matches the theme:
+  external http(s) links open in a new tab.
+*/ -}}
+{{- $u := urls.Parse .Destination -}}
+{{- $href := .Destination -}}
+{{- if and (not $u.IsAbs) (strings.HasSuffix $u.Path ".md") -}}
+  {{- with .PageInner.GetPage $u.Path -}}
+    {{- $href = .RelPermalink -}}
+    {{- with $u.Fragment -}}{{- $href = printf "%s#%s" $href . -}}{{- end -}}
+  {{- end -}}
+{{- end -}}
+<a href="{{ $href | safeURL }}"{{ with .Title }} title="{{ . }}"{{ end }}{{ if strings.HasPrefix $href "http" }} target="_blank"{{ end }}>{{ .Text | safeHTML }}</a>

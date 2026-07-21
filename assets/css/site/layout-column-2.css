@@ -1,0 +1,145 @@
+/*
+  PROJECT OVERRIDE of themes/E25DX/assets/css/site/layout-column-2.css.
+  Same two-column doc layout as the theme, but the desktop (>=1280px) header
+  block is reworked so the sub-page top bar matches the home page header:
+  the sidebar wordmark is sized (26px) and vertically centered to line up with
+  the header nav/actions, giving one continuous, same-height bar instead of an
+  oversized 40px logo sitting in a shorter header.
+*/
+html {
+  scroll-behavior: smooth;
+  scroll-padding: 6em;
+}
+
+@media (1024px <= width <= 1279px) {
+  html {
+    scroll-padding: 8em;
+  }
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+
+  color: var(--color);
+  background: var(--background);
+  font-family: var(--font-sans);
+}
+
+#content-wrapper {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 100svh;
+}
+
+main {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  width: 100svw;
+}
+
+main > article {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+}
+
+body.model-open {
+  overflow: hidden;
+}
+
+#off-canvas-model {
+  display: none;
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 15;
+
+  background: var(--model-foreground);
+  backdrop-filter: blur(var(--blur));
+}
+
+/* From Large Tablet */
+@media (min-width: 1024px) {
+  main {
+    margin-top: 0;
+    flex-direction: row;
+  }
+
+  main > article {
+    width: 75vw;
+    overflow-x: auto;
+    margin-top: calc(var(--padding_x2) *1.2);
+  }
+}
+
+/* From Desktop */
+@media (min-width: 1280px) {
+  body {
+    flex-direction: row;
+  }
+
+  main {
+    width: 80svw;
+    padding: 0 var(--padding_x2);
+  }
+
+  main > article {
+    width: 60vw;
+    margin-top: 0;
+  }
+
+  #site-header {
+    grid-template-columns: auto auto;
+    grid-template-areas: "menu actions";
+  }
+
+  #site-header-logo {
+    display: none;
+  }
+
+  #site-header-menu {
+    justify-self: start;
+    width: 60vw;
+  }
+
+  /*
+    Match the home page header: the sidebar wordmark stands in for the hidden
+    header logo, so size it like the header logo (26px) and give its cell the
+    same height + bottom border as the header so the two form one continuous bar.
+  */
+  #left-sidebar > a {
+    height: calc(26px + var(--padding) * 2);
+    flex-shrink: 0;
+    padding: 0 var(--padding);
+    align-items: center;
+    border-bottom: 1px solid rgb(from var(--color) r g b / .06);
+  }
+
+  #left-sidebar > a img {
+    height: 26px;
+    width: auto;
+  }
+
+  #article-nav {
+    display: none;
+  }
+
+  #site-footer {
+    width: 60vw;
+  }
+
+  #right-sidebar {
+    width: 25%;
+  }
+
+  #article-header {
+    padding: var(--padding_x2) var(--padding_x2) var(--padding);
+  }
+}

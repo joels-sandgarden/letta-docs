@@ -1,0 +1,19 @@
+# The wordmark SVG is disabled (empty string, not deleted, so the E25DX theme
+# default doesn't merge back in) — the header logo already carries the name.
+svg: ""
+
+badge: Written by Doc Holiday
+
+# The <span> gets the gradient text treatment (see hero.css).
+title: Letta, explained at the <span>concept level</span>.
+
+description: A field guide to the Letta v2 agent harness — why each subsystem exists, how the pieces relate, and where to look in the code. Written by exploring the letta-code and letta-agent-sdk sources directly, page by page.
+
+btn_primary:
+  label: Read the guide
+  # TODO: flip to docs/the-big-picture/ when page 00 lands (pending re-fire)
+  url: docs/anatomy-of-a-turn/
+
+btn_secondary:
+  label: letta-code on GitHub
+  url: https://github.com/letta-ai/letta-code

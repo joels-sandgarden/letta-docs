@@ -1,0 +1,121 @@
+/*
+  PROJECT OVERRIDE of themes/E25DX/assets/css/sections/hero.css.
+  DSPy Field Guide hero: a single soft teal glow over a faint blueprint grid
+  (engineering-notebook look) — deliberately unlike the gloria.dev rainbow
+  wash. Eyebrow pill, gradient headline accent, and sentence-case buttons
+  keep the theme's structure. Only loaded on the home layout.
+*/
+#content-wrapper {
+  background:
+    radial-gradient(70rem 36rem at 50% -12%, rgb(15 118 110 / .10), transparent 62%),
+    linear-gradient(rgb(15 118 110 / .045) 1px, transparent 1px) 0 -1px / 100% 28px,
+    linear-gradient(90deg, rgb(15 118 110 / .045) 1px, transparent 1px) -1px 0 / 28px 100%;
+  background-repeat: no-repeat, repeat, repeat;
+}
+
+:root[data-color="dark"] #content-wrapper {
+  background:
+    radial-gradient(70rem 36rem at 50% -12%, rgb(45 212 191 / .08), transparent 62%),
+    linear-gradient(rgb(45 212 191 / .05) 1px, transparent 1px) 0 -1px / 100% 28px,
+    linear-gradient(90deg, rgb(45 212 191 / .05) 1px, transparent 1px) -1px 0 / 28px 100%;
+  background-repeat: no-repeat, repeat, repeat;
+}
+
+.hero-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  justify-content: center;
+
+  gap: var(--padding_x2);
+  min-height: 56svh;
+  padding: calc(var(--padding_x2) * 2) var(--padding) 0;
+}
+
+.hero-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--padding_x2);
+}
+
+.hero-header h2 {
+  font-size: clamp(2.75rem, 7.5vw, 4.75rem);
+  font-weight: 700;
+  line-height: 1.04;
+  letter-spacing: -0.028em;
+  max-width: 17ch;
+  text-wrap: balance;
+}
+
+.hero-header h2 span {
+  background: var(--brand-gradient);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+.hero-content {
+  max-width: 38rem;
+  font-size: 1.125rem;
+  line-height: 1.55;
+  color: var(--color-fade);
+}
+
+.hero-controls {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--padding);
+  padding-top: var(--padding_d2);
+}
+
+/* utils */
+.hero-section .btn {
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+  border-radius: 12px;
+  padding: 10px 22px;
+}
+
+.hero-section .badge {
+  display: inline-flex;
+  align-items: center;
+  gap: .5em;
+
+  background: var(--card);
+  border: 1px solid rgb(from var(--color) r g b / .1);
+  border-radius: 999px;
+
+  color: var(--color-fade);
+  font-size: .6875rem;
+  font-weight: 600;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  padding: 8px 16px;
+  margin-bottom: 0;
+}
+
+.hero-section .badge::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--primary);
+}
+
+@media (min-width: 744px) {
+  .hero-section {
+    min-height: 44svh;
+  }
+}
+
+@media (min-width: 1024px) and (orientation: landscape) {
+  .hero-section {
+    min-height: 56svh;
+  }
+}

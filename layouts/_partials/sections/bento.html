@@ -1,0 +1,33 @@
+{{- /*
+  Project override of the E25DX bento partial. Adds an optional left-aligned
+  section header (title + description), matching the gloria.dev marketing
+  site's "Tools that make your agent better at your codebase." section.
+*/ -}}
+<section class="bento-section">
+
+	{{ with .header }}
+	<header class="bento-header">
+		<h2>{{ .title | markdownify }}</h2>
+		{{ with .description }}<p>{{ . | markdownify }}</p>{{ end }}
+	</header>
+	{{ end }}
+
+	{{ range .items }}
+	<div class="bento-card {{ .col }}">
+		<div>
+			<span class="card-icon">{{ partial "icon.html" .icon }}</span>
+			<h3>{{ .title | markdownify }}</h3>
+			<p>{{ .description | markdownify }}</p>
+		</div>
+
+		{{ with .badges }}
+		<footer>
+			{{ range . }}
+			<span class="badge">{{ . }}</span>
+			{{ end }}
+		</footer>
+		{{ end }}
+	</div>
+	{{ end }}
+
+</section>

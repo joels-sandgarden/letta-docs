@@ -49,6 +49,7 @@ flowchart LR
 If the checker still needs human input, `src/websocket/listener/turn.ts` hands the stop to `src/websocket/listener/turn-approval.ts`. That code path emits a control request over the websocket, waits for the response, and keeps the approval state inside the turn lifecycle so a resumed stream picks up the same conversation state.
 
 ### Pre-hooks
+
 `runPreToolUseHooks()` runs at the start of `executeTool()` in `src/tools/manager.ts`, after approval has resolved and before the tool body runs. A pre-hook can still stop the call early, which keeps policy and environment checks in one place instead of pushing them into each tool. For setup details, see the official [hooks docs](https://docs.letta.com/letta-agent/hooks).
 
 ### Sandboxed execution

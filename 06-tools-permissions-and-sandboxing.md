@@ -1,6 +1,6 @@
 # Tools, permissions, and sandboxing
 
-The Letta agent harness, letta-code, runs tools on the user's machine while the model decides what to ask for next. That split keeps shell state, local files, and scoped memory inside the client boundary, where the harness can enforce permissions and sandboxing before any action reaches a tool. This page follows that path from turn orchestration to execution and back again.
+The Letta agent harness, letta-code, runs client-side tools on the user's machine while the model decides what to ask for next. That split keeps shell state, local files, and scoped memory inside the client boundary, where the harness can enforce permissions and sandboxing before any action reaches a tool. This page follows that path from turn orchestration to execution and back again.
 
 ## The design choice
 
@@ -26,31 +26,31 @@ For the larger extension model around skills, subagents, and mods, see [Skills, 
 
 ## The gate sequence
 
-The listener treats a streamed tool call as a gated pipeline. Hooks can observe or block it, permissions can allow or deny it, approval can pause it, and sandboxing can narrow the process that finally runs.
+The listener treats a streamed tool call as a gated pipeline. The permission decision comes first, approval pauses come next when needed, and PreToolUse hooks run only at the start of the execution closure after that decision resolves. Sandboxing still wraps the process that actually executes, and post-hooks can add context after the tool returns.
 
 ```mermaid
 flowchart LR
-  Stream[Streamed tool call] --> PreHooks[Pre hooks]
-  PreHooks --> Perm[Permission check]
-  Perm --> NeedApproval{Need approval}
+  Stream[Streamed tool call] --> Perm[Permission check]
+  Perm --> NeedApproval{Need approval?}
   NeedApproval -->|yes| Approval[Approval listener pause]
-  NeedApproval -->|no| Execute[Sandboxed execution]
-  Approval --> Execute
+  NeedApproval -->|no| PreHooks[Pre hooks]
+  Approval --> PreHooks
+  PreHooks --> Execute[Sandboxed execution]
   Execute --> PostHooks[Post hooks]
   PostHooks --> Engine[Result back to engine]
 ```
 
-### Pre-hooks
-
-The hook runner calls pre-tool-use hooks before any tool executes. A pre-hook can stop the call early, which keeps policy and environment checks in one place instead of pushing them into each tool. For setup details, see the official [hooks docs](https://docs.letta.com/letta-agent/hooks).
-
 ### Permission check
 
-`src/permissions/checker.ts` evaluates the rules stack in a fixed order. Deny rules, CLI disallow rules, always-ask rules, mode overrides, CLI allow rules, working-directory allowances, session rules, settings rules, and mod permissions all feed one decision, and permission-request hooks can still convert an `ask` into an allow or a deny.
+`checkToolPermission()` computes the decision before execution and classifies whether the call can run or must pause. `checkPermissionWithHooks()` can still turn an `ask` into an allow or a deny through permission-request hooks, but the cross-agent guard in `src/permissions/checker.ts` stays the first and strongest deny.
 
 ### Approval pause
 
 If the checker still needs human input, `src/websocket/listener/turn.ts` hands the stop to `src/websocket/listener/turn-approval.ts`. That code path emits a control request over the websocket, waits for the response, and keeps the approval state inside the turn lifecycle so a resumed stream picks up the same conversation state.
+
+### Pre-hooks
+
+`runPreToolUseHooks()` runs at the start of `executeTool()` in `src/tools/manager.ts`, after approval has resolved and before the tool body runs. A pre-hook can still stop the call early, which keeps policy and environment checks in one place instead of pushing them into each tool. For setup details, see the official [hooks docs](https://docs.letta.com/letta-agent/hooks).
 
 ### Sandboxed execution
 
@@ -58,11 +58,11 @@ The harness wraps the launched process only after the earlier gates clear. `src/
 
 ### Post-hooks
 
-Post-tool-use hooks run after execution finishes. They can add follow-up context, but they do not change the tool result that already returned from the client-side executor.
+Post-tool-use hooks run after execution finishes. They cannot block or replace the tool's result, though their feedback is appended to it.
 
 ### Result back to the engine
 
-After hooks finish, the listener hands the final result back into the streaming turn and keeps the turn lifecycle in sync. That handoff lets the model continue with the tool outcome instead of with an abstract server-side event.
+After hooks finish, the listener hands the final result back into the streaming turn and keeps the turn lifecycle in sync. That handoff lets the model continue with the tool outcome instead of with an abstract event, for the client-side execution path.
 
 ## The permission model
 

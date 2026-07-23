@@ -1,6 +1,6 @@
 # The Big Picture
 
-Letta v2 makes the `letta-code` harness visible across the `letta` CLI, the desktop app, `chat.letta.com`, messaging channels, and the Agent SDK. This page gives the current map for the system: it names the moving parts, shows where the harness ends and the backend begins, and keeps the MemGPT-era server in history.
+Letta v2 maps the current system that lets engineers work with agents across the `letta` CLI, the desktop app, `chat.letta.com`, messaging channels, and the Agent SDK. This page gives the current map for the system: it names the moving parts, shows where the harness ends and the backend begins, and keeps the MemGPT-era server in history.
 
 The harness acts as a client. It can talk to three backend implementations: Letta Cloud / Constellation, a self-hosted App Server, and the experimental in-process local engine under `src/backend/local/`. The same turn model reaches all of them, but each backend owns a different slice of the runtime contract.
 

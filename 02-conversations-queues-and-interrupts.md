@@ -46,11 +46,9 @@ The surface stays visible while that happens. `protocol-outbound.ts` emits queue
 
 ## Self-scheduling joins the same queue
 
-Cron work does not run as a transport heartbeat or a background think loop. `src/cron/scheduler.ts` claims a scheduler lease in `src/cron/cron-file.ts`, wakes on a minute tick, checks the active tasks against the current time with `cronMatchesTime()` from `src/cron/parse-interval.ts`, and enqueues a `cron_prompt` into the target conversation's queue. The scheduler then kicks the same queue pump that user input uses.
+Cron work does not run as a transport heartbeat or a background think loop. `src/cron/scheduler.ts` claims a scheduler lease in `src/cron/cron-file.ts`, wakes once a minute, checks active tasks with `cronMatchesTime()` from `src/cron/parse-interval.ts`, and hands each matched fire to the same conversation queue as user input. `crons.json` stores the scheduler owner and task list, so only one process drives cron firing at a time.
 
-That choice keeps proactive work inside the normal turn machinery. A schedule can create a new conversation or target an existing one, but it still lands as queued turn input and still obeys the same ordering rules as a user message. Reflection follows the same broader idea elsewhere in the harness: proactive work enters the normal turn path instead of inventing a separate always-on loop. The result is one mental model for reactive and scheduled work alike.
-
-The scheduler owns its own lease so only one process drives cron firing at a time. `crons.json` stores both the tasks and the scheduler owner, while the minute tick and garbage-collection cycle keep the file clean. That lease keeps scheduled work coordinated across listener restarts and prevents duplicate fires when more than one process can see the same task file. The public [scheduling docs](/letta-agent/scheduling) describe the product surface of the same behavior.
+That choice keeps proactive work inside the normal turn machinery. A schedule can open a new conversation or target an existing one, but the scheduler still feeds the normal turn path. Reflection uses the same idea elsewhere in the harness: proactive work enters the turn path instead of a separate always-on loop. The public [scheduling docs](/letta-agent/scheduling) describe the product surface of the same behavior.
 
 ## Where to look in the code
 

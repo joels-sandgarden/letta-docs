@@ -36,7 +36,7 @@ The operator surfaces sit beside the runtime path, not inside it. `src/cli/compo
 
 ## Shared across conversations, scoped to an agent
 
-Agent memory follows the agent across conversations. Conversation queues stay separate, so memory does not belong to a single chat transcript or a single turn record. `./01-anatomy-of-a-turn.md` and `./02-conversations-queues-and-interrupts.md` cover the turn and queue layers that move input through the system. `./08-the-app-server-and-the-sdk.md` covers the websocket seam that can reach the same agent state from another surface.
+Agent memory is shared across that agent's conversations. Conversation queues stay separate, so memory does not belong to a single chat transcript or a single turn record. `./01-anatomy-of-a-turn.md` and `./02-conversations-queues-and-interrupts.md` cover the turn and queue layers that move input through the system. `./08-the-app-server-and-the-sdk.md` covers the websocket seam that can reach the same agent state from another surface.
 
 ```mermaid
 flowchart LR
@@ -57,4 +57,4 @@ flowchart LR
 - `src/agent/memory-filesystem.ts`, `src/agent/memory-git.ts`, `src/agent/memory-git-hooks.ts`, and `src/agent/memory-git-signing.ts` define the filesystem root, git tracking, hooks, and signing behavior.
 - `src/tools/impl/memory.ts` and `src/tools/impl/memory-apply-patch.ts` handle in-turn memory edits.
 - `src/backend/local/system-prompt-compilation.ts` and `src/websocket/listener/turn-setup.ts` show how the harness rebuilds context before a run.
-- `src/websocket/listener/memfs-sync.ts`, `src/cli/components/MemoryTabViewer.tsx`, `src/cli/components/MemfsTreeViewer.tsx`, `src/skills/builtin/context-doctor/SKILL.md`, and `src/cli/commands/memory-repository.ts` cover sync and observability paths.
+- `src/websocket/listener/memfs-sync.ts` handles lazy MemFS sync, while `src/cli/components/MemoryTabViewer.tsx`, `src/cli/components/MemfsTreeViewer.tsx`, `src/skills/builtin/context-doctor/SKILL.md`, and `src/cli/commands/memory-repository.ts` cover observability and user-owned sync.

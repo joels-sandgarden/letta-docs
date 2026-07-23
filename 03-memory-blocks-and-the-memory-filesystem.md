@@ -1,6 +1,6 @@
 # Memory blocks and the memory filesystem
 
-The Letta agent harness, Letta Code, keeps memory alive for agents that can run for a long time by splitting memory into two layers. The first layer stays tiny and always in context: `persona` and `human` carry identity and relationship context. The second layer lives in MemFS tracked by git and holds the durable material that accumulates over time. The older v1 pages for [Memory Blocks](https://docs.letta.com/guides/core-concepts/memory/memory-blocks) and [Stateful Agents](https://docs.letta.com/guides/core-concepts/stateful-agents) provide lineage only; they do not describe the current v2 harness. For feature-level usage, see [official memory docs](https://docs.letta.com/letta-agent/memory).
+The Letta agent harness, Letta Code, keeps memory alive for agents that can run for a long time by splitting memory into two layers. The first layer stays tiny and always in context: `persona` and `human` carry identity and relationship context. The second layer lives in MemFS tracked by git and holds the durable material that accumulates over time. The older v1 pages for [Memory Blocks](https://docs.letta.com/guides/core-concepts/memory/memory-blocks) and [Stateful Agents](https://docs.letta.com/guides/core-concepts/stateful-agents) are historical lineage only; they do not describe the current v2 harness. For feature-level usage, see [official memory docs](https://docs.letta.com/letta-agent/memory).
 
 ## Layer 1: memory blocks
 
@@ -12,7 +12,7 @@ These blocks do one job: they keep identity and relationship context near the mo
 
 `src/agent/memory-filesystem.ts` scopes each agent's memory to `~/.letta/agents/<agentId>/memory` and creates the `system/` directory that the prompt compiler reads first. That filesystem holds the memory blocks themselves, plus notes and agent-scoped skills, and it becomes the durable memory tree for the agent.
 
-Git tracking gives the durable layer auditability, rollback, portability, and an optional sync path to a remote the user owns through `/memory-repository`. The git path in `src/agent/memory-git.ts`, `src/agent/memory-git-hooks.ts`, and `src/agent/memory-git-signing.ts` installs pre-commit and post-commit hooks and turns off commit signing for harness-managed identities. The commit log records what the agent believed and when, which makes the git history the audit trail for memory state.
+Git tracking gives the durable layer auditability, rollback, portability, and an optional sync path to a remote the user owns through `/memory-repository`. The git path in `src/agent/memory-git.ts`, `src/agent/memory-git-hooks.ts`, and `src/agent/memory-git-signing.ts` installs pre-commit and post-commit hooks and turns off commit signing for harness-managed identities. The commit log records what the agent believed and when, making the git history the audit trail for memory state.
 
 ## How memory changes
 

@@ -58,9 +58,9 @@ The implementation keeps those live surfaces separate on purpose. The queue repo
 
 The cron scheduler runs in process, claims its own lease, and ticks once per minute. On each tick it checks the active cron file, finds matching work, and hands that work into the same conversation queue used by user input and task notifications.
 
-That design keeps proactive work on the same path as ordinary inbound work. Crons, scheduled tasks, and reflection each represent intentional activity, not a transport heartbeat or an old background think loop. The scheduler only decides when to enqueue the work; the conversation queue and turn lifecycle decide when the work can start.
+That design keeps proactive work on the same path as ordinary inbound work. Crons, scheduled tasks, and reflection each represent intentional activity, not a transport heartbeat or an old background think loop. The [scheduling page](/letta-agent/scheduling) covers that broader runtime model. The scheduler only decides when to enqueue the work; the conversation queue and turn lifecycle decide when the work can start.
 
-The scheduler also keeps its own file-backed ownership rule. One process claims the lease, another process yields, and stale ownership gets recovered before tasks fire. That matches the rest of the listener model: a single owner governs a single flow, and the queue stays the source of truth for what runs next.
+The scheduler also keeps its own file-backed ownership rule. One process claims the lease, another process yields, and the scheduler recovers stale ownership before tasks fire. That matches the rest of the listener model: a single owner governs a single flow, and the queue stays the source of truth for what runs next.
 
 ## Where to look in the code
 

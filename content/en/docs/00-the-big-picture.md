@@ -56,7 +56,7 @@ flowchart TD
 
 ## Turn loop at map altitude
 
-The turn loop starts by rebuilding the current world, not by trusting the last reply to carry forward the right state. `src/websocket/listener/turn-setup.ts` gathers reminders, recent context, permission posture, and turn-scoped tools before the model sees the next message. `src/queue/turn-queue-runtime.ts` keeps queued input in order and merges compatible items into one payload when a conversation needs a single turn.
+The turn loop rebuilds the current world before each turn and does not trust the last reply to carry forward the right state. `src/websocket/listener/turn-setup.ts` gathers reminders, recent context, permission posture, and turn-scoped tools before the model sees the next message. `src/queue/turn-queue-runtime.ts` keeps queued input in order and merges compatible items into one payload when a conversation needs a single turn.
 
 `src/types/protocol_v2.ts` names the loop states that the surfaces see: waiting on input, waiting on approval, executing a client-side tool, and returning to the idle edge of the next turn. `src/websocket/listener/turn-lifecycle.ts` keeps that state machine honest, while `src/websocket/listener/protocol-outbound.ts` publishes loop status, queue snapshots, device status, and subagent state so the surface sees the live shape of the turn.
 
@@ -64,7 +64,7 @@ For the turn-level path from input to reply, see [Anatomy of a Turn](./01-anatom
 
 ## Memory and identity
 
-Identity belongs to the agent and conversation, not to a session handle or a surface. The memory filesystem keeps that identity rooted in a scoped agent directory, and `src/agent/memory-filesystem.ts` resolves the memory path from the current agent, the local backend, or the active environment. That gives the harness one durable place for memory while sessions come and go around it.
+Identity belongs to the agent and conversation, not to a session handle or a surface. The memory filesystem roots that identity in a scoped agent directory, and `src/agent/memory-filesystem.ts` resolves the memory path from the current agent, the local backend, or the active environment. That gives the harness one durable place for memory while sessions come and go around it.
 
 The turn setup path rebuilds reminders and tool context from that durable state at the start of each turn. The result keeps memory visible without turning memory into a separate runtime. For the filesystem layout and the MemFS rules, see [Memory blocks and the memory filesystem](./03-memory-blocks-and-the-memory-filesystem.md).
 
@@ -80,13 +80,13 @@ Letta keeps the extension boundaries separate on purpose.
 
 ## Dated comparison with v1
 
-The MemGPT-era Python server treated the server as the center of gravity. Letta v2 moves that center into the harness and the SDK seam. The current design keeps turn orchestration, protocol state, and extension routing in `letta-code`, while `letta-agent-sdk` provides the client-facing session boundary.
+The MemGPT-era Python server put the server at the center of the system. Letta v2 moves that center into the harness and the SDK seam. The current design keeps turn orchestration, protocol state, and extension routing in `letta-code`, while `letta-agent-sdk` provides the session boundary for programmatic clients.
 
-That change matters because it keeps tool execution and local side effects on the client machine while the conversation model stays stable across surfaces. The older server still helps explain the history, but it does not describe the current architecture. For the protocol seam that carries that split, see [The App Server and the SDK](./08-the-app-server-and-the-sdk.md).
+That change keeps tool execution and local side effects on the client machine while the conversation model stays stable across surfaces. The older server still helps explain the history, but it does not describe the current architecture. For the protocol seam that carries that split, see [The App Server and the SDK](./08-the-app-server-and-the-sdk.md).
 
 ## Honesty note
 
-This guide reflects a dated snapshot of the v2 system. Exact inventories, surface support, and experimental paths can move, but the core shape stays the same: one conversation, one agent identity, one turn loop, and one SDK seam.
+This guide captures a dated snapshot of the v2 system. Exact inventories, surface support, and experimental paths can move, but the core shape stays the same: one conversation, one agent identity, one turn loop, and one SDK seam.
 
 ## Where to look in the code
 

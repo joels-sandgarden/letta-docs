@@ -4,7 +4,7 @@ url: "docs/memory-blocks-and-the-memory-filesystem"
 description: "How the v2 harness splits agent memory between tiny always in context blocks and git tracked MemFS."
 ---
 
-The Letta agent harness, `letta-code`, keeps a small always in-context memory layer because an agent can run for a long time and still need stable identity and relationship context. It pairs that layer with a git-tracked `MemFS` tree for durable state. The older v1 pages for [Memory Blocks](https://docs.letta.com/guides/core-concepts/memory/memory-blocks) and [Stateful Agents](https://docs.letta.com/guides/core-concepts/stateful-agents) provide lineage only; they do not describe the current v2 harness. For feature-level usage, see the official memory docs at [docs.letta.com/letta-agent/memory](https://docs.letta.com/letta-agent/memory).
+The Letta agent harness, `letta-code`, keeps a small always in-context memory layer because an agent can run for a long time and still need stable identity and relationship context. It pairs that layer with a git-tracked `MemFS` tree for durable state. The older v1 pages for [Memory Blocks](https://docs.letta.com/guides/core-concepts/memory/memory-blocks) and [Stateful Agents](https://docs.letta.com/guides/core-concepts/stateful-agents) are historical lineage only; they do not describe the current v2 harness. For feature-level usage, see the official memory docs at [docs.letta.com/letta-agent/memory](https://docs.letta.com/letta-agent/memory).
 
 ## The two memory layers
 
@@ -16,9 +16,9 @@ These blocks do not act as a general knowledge store. They carry the small amoun
 
 ### Layer two: the MemFS filesystem
 
-`src/agent/memory-filesystem.ts` scopes memory to `~/.letta/agents/<agentId>/memory`, creates the `system/` directory, and enables MemFS for both local and cloud backends. That filesystem holds the memory blocks themselves, plus notes and agent-scoped skills, and the harness enables it for both local and cloud backends.
+`src/agent/memory-filesystem.ts` scopes memory to `~/.letta/agents/<agentId>/memory`, creates the `system/` directory, and enables MemFS for both local and cloud backends. That filesystem holds the memory blocks themselves, plus notes and agent-scoped skills.
 
-The harness tracks `MemFS` in git. `src/agent/memory-git.ts`, `src/agent/memory-git-hooks.ts`, and `src/agent/memory-git-signing.ts` show the supporting pieces: the harness installs pre and post commit hooks, records memory changes as commits, and disables commit signing for harness managed identities. The commit log records what the agent believed and when, so the history serves as the audit trail for memory state.
+The harness tracks `MemFS` in git. `src/agent/memory-git.ts`, `src/agent/memory-git-hooks.ts`, and `src/agent/memory-git-signing.ts` show the supporting pieces: the harness installs pre and post commit hooks, records memory changes as commits, and disables commit signing for harness managed identities. The commit log records what the agent believed and when, making the git history the audit trail for memory state.
 
 ## How memory changes
 

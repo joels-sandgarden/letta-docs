@@ -1,6 +1,6 @@
 # Conversations, Queues, and Interrupts
 
-This page picks up where [Anatomy of a Turn](./01-anatomy-of-a-turn.md) ends. It explains how Letta Code keeps many conversations ordered while one long-lived agent runs them, how the listener interrupts a live turn without losing state, and how cron work joins the same flow. Durable memory lives elsewhere; the memory page covers the blocks and filesystem that outlast any single turn ([Memory Blocks and the Memory Filesystem](./03-memory-blocks-and-the-memory-filesystem.md), [memory docs](/letta-agent/memory)).
+This page picks up where [Anatomy of a Turn](./01-anatomy-of-a-turn.md) ends. It explains how Letta Code keeps many conversations ordered while one long-lived agent runs them, how the listener interrupts a live turn without losing state, and how cron work joins the same queue. For durable memory, see [Memory Blocks and the Memory Filesystem](./03-memory-blocks-and-the-memory-filesystem.md) and the official [memory docs](/letta-agent/memory).
 
 ## One agent, many conversations
 
@@ -24,7 +24,7 @@ That distinction between `command` and `active` matters. A command can update st
 
 The lease rule keeps ownership strict. Only one runtime may own a conversation's turn flow at a time, and every async path must check the exact lease before it emits events or mutates state. `turn-lifecycle.ts` enforces that with `isCurrent()` checks, and `AGENTS.md` says the quiet part plainly: stale leases must emit nothing. That rule prevents late approvals, delayed tool returns, and unrelated callbacks from rewriting a turn that already moved on.
 
-The broader protocol contract sits in [The App Server and the SDK](./08-the-app-server-and-the-sdk.md) and the official [protocol lifecycle docs](/letta-agent/app-server/protocol-lifecycle).
+See [The App Server and the SDK](./08-the-app-server-and-the-sdk.md) for the broader protocol contract and the official [protocol lifecycle docs](/letta-agent/app-server/protocol-lifecycle).
 
 ```mermaid
 stateDiagram-v2

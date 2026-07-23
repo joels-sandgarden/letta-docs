@@ -30,7 +30,7 @@ Outside the turn, reflection and dreaming can also rewrite memory files after a 
 
 ## What is shared vs scoped
 
-Agent memory belongs to the agent, not to a single conversation. Every conversation that runs under the same agent reads the same memory, while the conversation queues remain separate. That split lines up with the turn lifecycle in [Anatomy of a turn](./01-anatomy-of-a-turn.md), the queue model in [Conversations, queues, and interrupts](./02-conversations-queues-and-interrupts.md), and the app-server boundary in [The app server and the SDK](./08-the-app-server-and-the-sdk.md).
+Agent memory belongs to the agent, not to a single conversation. Every conversation that runs under the same agent reads the same memory, while the conversation queues remain separate. That split lines up with the turn lifecycle in [Anatomy of a turn](./01-anatomy-of-a-turn.md), the queue model in [Conversations, queues, and interrupts](./02-conversations-queues-and-interrupts.md), and the app server boundary in [The app server and the SDK](./08-the-app-server-and-the-sdk.md).
 
 ```mermaid
 flowchart LR
@@ -43,7 +43,7 @@ flowchart LR
     root["~/.letta/agents/<agentId>/memory/"]
     system["system/"]
     other["other memory files"]
-    hooks["git hooks and commit signing off"]
+    hooks["git hooks and commit signing disabled"]
   end
 
   tools["memory tool\nmemory-apply-patch"]
@@ -65,7 +65,7 @@ flowchart LR
 ## Where to look in the code
 
 - `src/agent/memory.ts` and `src/agent/prompts/{persona,human}.mdx` define the two seeded memory blocks.
-- `src/agent/memory-filesystem.ts` sets the agent-scoped memory root and creates `system/`.
+- `src/agent/memory-filesystem.ts` sets the memory root for each agent and creates `system/`.
 - `src/agent/memory-git.ts`, `src/agent/memory-git-hooks.ts`, and `src/agent/memory-git-signing.ts` handle clone, pull, commit, hooks, and commit signing.
 - `src/tools/impl/memory.ts` and `src/tools/impl/memory-apply-patch.ts` write memory during turns.
 - `src/backend/local/system-prompt-compilation.ts`, `src/websocket/listener/turn-setup.ts`, and `src/websocket/listener/memfs-sync.ts` read and hydrate memory at runtime.

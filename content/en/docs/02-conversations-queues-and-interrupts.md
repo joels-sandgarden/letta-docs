@@ -50,9 +50,9 @@ stateDiagram-v2
 
 A live turn keeps accepting steering input while it runs. Ordinary follow-up input queues behind the current work, and the queue pump drains that input when the lease allows it. Interrupt and control paths can normalize tool-return data or approval responses into the interrupted turn, so the next continuation sees the same conversation thread instead of a disconnected retry.
 
-Explicit aborts request cancellation. The listener projects that request through the same lifecycle that governs the turn, so the live surfaces stay honest while the abort runs through the system. Queue depth updates continue to reflect waiting work, loop-status updates show the current state of the turn, and the UI can surface interrupted or cancelled transitions as they happen.
+Explicit aborts request cancellation. The listener carries that request through the same lifecycle that governs the turn, so the live surfaces stay accurate while the abort runs through the system. Queue depth updates continue to reflect waiting work, loop-status updates show the current state of the turn, and the UI can surface interrupted or cancelled transitions as they happen.
 
-The implementation keeps those live surfaces separate on purpose. The queue reports what waits. The lifecycle reports who owns the conversation. Interrupt handling translates in-flight tool or approval state into data that the interrupted turn can consume. That separation keeps steering predictable even when a turn pauses, resumes, or exits under cancellation.
+The implementation keeps those live surfaces separate on purpose. The queue reports what waits. The lifecycle reports who owns the conversation. Interrupt handling translates in-flight tool or approval state into data the interrupted turn can consume. That separation keeps steering predictable even when a turn pauses, resumes, or exits under cancellation.
 
 ## Self-scheduling
 

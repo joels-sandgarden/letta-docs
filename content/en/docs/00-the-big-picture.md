@@ -4,7 +4,7 @@ url: "docs/the-big-picture"
 description: "A concept-level map of the current Letta v2 harness and SDK seam."
 ---
 
-The current Letta v2 system lives in two pieces: the `letta-code` harness and the `letta-agent-sdk` protocol and session seam. Together they keep one conversation coherent across the `letta` CLI, the desktop app, `chat.letta.com`, messaging channels, and the Agent SDK. The old MemGPT-era Python server explains the history, but it does not describe the current shape.
+The current Letta v2 system lives in two pieces: the `letta-code` harness and the `letta-agent-sdk` protocol and session seam. Together they keep one conversation coherent across the `letta` CLI, the desktop app, `chat.letta.com`, messaging channels, and the Agent SDK. The old MemGPT-era Python server provides historical context, but it does not define the current shape.
 
 ## What Letta is for
 
@@ -14,7 +14,7 @@ Letta gives an agent a durable conversation, a memory store, and a controlled wa
 
 The harness owns the turn. The client owns the surface that sends the message and, when a tool call demands it, the machine that runs the tool. The Agent SDK talks to that seam instead of duplicating the harness, and `src/app-server-client.ts` shows the same control and stream split that the protocol expects.
 
-The same model works across three deployment backends: local, App Server, and cloud. The backend changes where the harness runs and who starts it, but it does not change the conversation model or the turn contract.
+The same model runs across three deployment backends: local, App Server, and cloud. The backend changes where the harness runs and who starts it, but it does not change the conversation model or the turn contract.
 
 ```mermaid
 flowchart TD
@@ -72,11 +72,9 @@ The turn setup path rebuilds reminders and tool context from that durable state 
 
 Letta keeps the extension boundaries separate on purpose.
 
-- Skills add prompt-time guidance and reusable procedure. See [Skills, subagents, and mods](./05-skills-subagents-and-mods.md).
-- Subagents move scoped work out of the main turn and keep the parent context clean. See [Skills, subagents, and mods](./05-skills-subagents-and-mods.md).
-- Mods extend the host harness with tools, permissions, commands, and other local capabilities. See [Skills, subagents, and mods](./05-skills-subagents-and-mods.md) and `src/mods/mod-engine.ts`.
+- Skills, subagents, and mods keep different boundaries: skills add prompt-time guidance and reusable procedure, subagents move scoped work out of the main turn, and mods extend the host harness with tools, permissions, commands, and other local capabilities. See [Skills, subagents, and mods](./05-skills-subagents-and-mods.md) and `src/mods/mod-engine.ts`.
 - Channels connect outside surfaces back to the same conversation model. See [Channels](./07-channels.md).
-- The Agent SDK keeps the app-server and session seam stable for programmatic clients. See [The App Server and the SDK](./08-the-app-server-and-the-sdk.md).
+- The Agent SDK keeps the app-server/session seam stable for programmatic clients. See [The App Server and the SDK](./08-the-app-server-and-the-sdk.md).
 
 `src/tools/manager.ts` decides which tools the model sees, which ones the harness can execute locally, and which ones need approval. `src/channels/registry.ts` routes messages from external surfaces into the same turn machinery, and `src/app-server-client.ts` keeps the control and stream sides of the app-server connection separate.
 

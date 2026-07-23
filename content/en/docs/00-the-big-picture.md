@@ -1,98 +1,94 @@
 ---
 title: The Big Picture
 url: "docs/the-big-picture"
-description: "A concept-level map of the current Letta v2 harness and SDK seam."
+description: "The map of the v2 Letta system: the harness, the three backends, client-side tools, and what changed since MemGPT."
 ---
 
-The current Letta v2 system lives in two pieces: the `letta-code` harness and the `letta-agent-sdk` protocol and session seam. Together they keep one conversation coherent across the `letta` CLI, the desktop app, `chat.letta.com`, messaging channels, and the Agent SDK. The old MemGPT-era Python server provides historical context, but it does not define the current shape.
+Letta v2 maps the current system that lets engineers work with agents across the `letta` CLI, the desktop app, `chat.letta.com`, messaging channels, and the Agent SDK. This page gives the current map for the system: it names the moving parts, shows where the harness ends and the backend begins, and keeps the MemGPT-era server in history.
 
-## What Letta is for
-
-Letta gives an agent a durable conversation, a memory store, and a controlled way to reach tools and external surfaces. It keeps the active turn close to the user while it preserves the agent's identity and memory across sessions and surfaces. That is the core promise: the conversation continues, even when the front end, transport, or session handle changes.
-
-## Client and server split
-
-The harness owns the turn. The client owns the surface that sends the message and, when a tool call demands it, the machine that runs the tool. The Agent SDK talks to that seam instead of duplicating the harness, and `src/app-server-client.ts` shows the same control and stream split that the protocol expects.
-
-The same model runs across three deployment backends: local, App Server, and cloud. The backend changes where the harness runs and who starts it, but it does not change the conversation model or the turn contract.
+The harness acts as a client. It can talk to three backend implementations: Letta Cloud / Constellation, a self-hosted App Server, and the experimental in-process local engine under `src/backend/local/`. The same turn model reaches all of them, but each backend owns a different slice of the runtime contract.
 
 ```mermaid
-flowchart TD
-  subgraph Surfaces
-    CLI[letta CLI]
-    Desktop[Desktop app]
-    Web[chat.letta.com]
-    Channels[Messaging channels]
-    SDK[Agent SDK]
+flowchart TB
+  subgraph Surfaces["Surfaces"]
+    direction LR
+    CLI["`letta` CLI"]
+    Desktop["Desktop app"]
+    Chat["chat.letta.com"]
+    Channels["Messaging channels"]
+    SDK["Agent SDK"]
   end
 
-  subgraph Harness["Letta code harness"]
-    Turn[Turn loop and protocol state]
-    Memory[Memory and identity]
-    Ext[Skills, subagents, mods, channels]
+  subgraph Harness["`letta-code` harness"]
+    direction TB
+    Ingress["Message enters the harness"]
+    Queue["Queueing and turn setup"]
+    Loop["Protocol V2 loop state"]
+    Memory["Memory filesystem"]
+    Extensions["Skills, subagents, mods"]
+    ToolExec["Tool execution stays on the client machine"]
+    Ingress --> Queue --> Loop --> Memory
+    Loop --> Extensions
+    Loop --> ToolExec
   end
-
-  ClientTools[Client machine tools]
 
   subgraph Backends["Backends"]
-    Local[Local backend]
-    AppServer[App Server]
-    Cloud[Cloud]
+    direction LR
+    Cloud["Letta Cloud / Constellation"]
+    AppServer["Self-hosted App Server"]
+    Local["Experimental local engine"]
   end
 
-  CLI -->|message| Turn
-  Desktop -->|message| Turn
-  Web -->|message| Turn
-  Channels -->|message| Turn
-  SDK -->|session send| Turn
-  Turn --> Memory
-  Turn --> Ext
-  Turn -->|tool call| ClientTools
-  ClientTools -->|result| Turn
-  Turn --> Local
-  Turn --> AppServer
-  Turn --> Cloud
+  CLI --> Ingress
+  Desktop --> Ingress
+  Chat --> Ingress
+  Channels --> Ingress
+  SDK --> Ingress
+
+  Loop --> Cloud
+  Loop --> AppServer
+  Loop --> Local
 ```
 
-## Turn loop at map altitude
+## The turn loop at map altitude
 
-The turn loop rebuilds the current world before each turn and does not trust the last reply to carry forward the right state. `src/websocket/listener/turn-setup.ts` gathers reminders, recent context, permission posture, and turn-scoped tools before the model sees the next message. `src/queue/turn-queue-runtime.ts` keeps queued input in order and merges compatible items into one payload when a conversation needs a single turn.
+Incoming messages land in a conversation-scoped queue, and the listener turns them into one turn at a time. Turn setup prepares the current agent and conversation, adds reminder context, builds the tool context, and carries forward any interrupted work that needs to resume. The lifecycle then moves through protocol states such as `SENDING_API_REQUEST`, `WAITING_FOR_API_RESPONSE`, `PROCESSING_API_RESPONSE`, `EXECUTING_CLIENT_SIDE_TOOL`, `WAITING_ON_APPROVAL`, and `WAITING_ON_INPUT` until the turn finishes.
 
-`src/types/protocol_v2.ts` names the loop states that the surfaces see: waiting on input, waiting on approval, executing a client-side tool, and returning to the idle edge of the next turn. `src/websocket/listener/turn-lifecycle.ts` keeps that state machine honest, while `src/websocket/listener/protocol-outbound.ts` publishes loop status, queue snapshots, device status, and subagent state so the surface sees the live shape of the turn.
+`EXECUTING_CLIENT_SIDE_TOOL` marks the moment when the harness asks the user machine to run a tool. The model waits for that result; the tool does not move to the server. That split keeps local actions local while the protocol still records the turn in a single stream.
 
-For the turn-level path from input to reply, see [Anatomy of a Turn](./01-anatomy-of-a-turn.md).
+For the full turn map, see [Anatomy of a turn](./01-anatomy-of-a-turn.md) and [Conversations, queues, and interrupts](./02-conversations-queues-and-interrupts.md).
 
 ## Memory and identity
 
-Identity belongs to the agent and conversation, not to a session handle or a surface. The memory filesystem roots that identity in a scoped agent directory, and `src/agent/memory-filesystem.ts` resolves the memory path from the current agent, the local backend, or the active environment. That gives the harness one durable place for memory while sessions come and go around it.
+The memory filesystem lives on local disk as git repositories, and the small always in context memory blocks stay attached to the agent on every turn. Those blocks carry the stable identity of the agent: persona, human context, and other facts that should remain present without searching a larger store. The git-tracked memory tree carries the changing working memory, so identity stays continuous while the long-term memory keeps a revision history.
 
-The turn setup path rebuilds reminders and tool context from that durable state at the start of each turn. The result keeps memory visible without turning memory into a separate runtime. For the filesystem layout and the MemFS rules, see [Memory blocks and the memory filesystem](./03-memory-blocks-and-the-memory-filesystem.md).
+See [Memory blocks and the memory filesystem](./03-memory-blocks-and-the-memory-filesystem.md) for the memory model.
 
-## Extension mechanisms
+## Extension mechanisms and background improvement
 
-Letta keeps the extension boundaries separate on purpose.
+Skills load reusable instructions and turn-specific tools into the current context.
 
-- Skills, subagents, and mods keep different boundaries: skills add prompt-time guidance and reusable procedure, subagents move scoped work out of the main turn, and mods extend the host harness with tools, permissions, commands, and other local capabilities. See [Skills, subagents, and mods](./05-skills-subagents-and-mods.md) and `src/mods/mod-engine.ts`.
-- Channels connect outside surfaces back to the same conversation model. See [Channels](./07-channels.md).
-- The Agent SDK keeps the app-server/session seam stable for programmatic clients. See [The App Server and the SDK](./08-the-app-server-and-the-sdk.md).
+Subagents let one agent hand work to another conversation with its own state and result stream.
 
-`src/tools/manager.ts` decides which tools the model sees, which ones the harness can execute locally, and which ones need approval. `src/channels/registry.ts` routes messages from external surfaces into the same turn machinery, and `src/app-server-client.ts` keeps the control and stream sides of the app-server connection separate.
+Mods let local extensions register commands, tools, events, permissions, and panels without changing the core harness.
 
-## Dated comparison with v1
+Reflection and dreaming keep background self-improvement running between turns so the system can rewrite memory or prepare future work.
 
-The MemGPT-era Python server put the server at the center of the system. Letta v2 moves that center into the harness and the SDK seam. The current design keeps turn orchestration, protocol state, and extension routing in `letta-code`, while `letta-agent-sdk` provides the session boundary for programmatic clients.
+For the deeper extension map, see [Dreaming and reflection](./04-dreaming-and-reflection.md) and [Skills, subagents, and mods](./05-skills-subagents-and-mods.md). Tool approval and sandbox rules live in [Tools, permissions, and sandboxing](./06-tools-permissions-and-sandboxing.md). Channel routing lives in [Channels](./07-channels.md).
 
-That change keeps tool execution and local side effects on the client machine while the conversation model stays stable across surfaces. The older server still helps explain the history, but it does not describe the current architecture. For the protocol seam that carries that split, see [The App Server and the SDK](./08-the-app-server-and-the-sdk.md).
+## MemGPT / v1, historical only
 
-## Honesty note
+In the 2024 MemGPT-era v1 design, the server owned tool execution, memory used embedding-backed folders and document search, and a heartbeat loop drove recurring work. The current v2 design moves tool execution to the client side, uses git-tracked MemFS and filesystem tools for memory, and replaces the heartbeat loop with crons, schedules, and post-turn reflection. In both systems, the memory blocks remain the continuity point for identity.
 
-This guide captures a dated snapshot of the v2 system. Exact inventories, surface support, and experimental paths can move, but the core shape stays the same: one conversation, one agent identity, one turn loop, and one SDK seam.
+## Honesty note, mid 2026
+
+As of mid-2026, the harness ships near daily, the local backend remains experimental, and the newest messaging channels are still young. This page captures the current map, not a promise that every edge will stay fixed.
 
 ## Where to look in the code
 
-- `letta-code` `src/backend/backend.ts`, `src/backend/local/local-backend.ts` — backend capability split and local execution path.
-- `letta-code` `src/types/protocol_v2.ts`, `src/websocket/listener/turn-setup.ts`, `src/websocket/listener/turn-lifecycle.ts`, `src/websocket/listener/protocol-outbound.ts` — loop states, turn setup, lifecycle, and outbound state.
-- `letta-code` `src/queue/turn-queue-runtime.ts`, `src/agent/memory-filesystem.ts` — queue merging and scoped memory paths.
-- `letta-code` `src/tools/manager.ts`, `src/mods/mod-engine.ts` — local tool assembly and host extension loading.
-- `letta-code` `src/channels/registry.ts`, `src/app-server-client.ts` — channel routing and app-server transport.
-- `letta-agent-sdk` `src/protocol.ts`, `src/session.ts`, `src/app-server-session.ts` — protocol definitions, session lifecycle, and SDK-owned app-server startup.
+- `src/backend/backend.ts` and `src/backend/local/local-backend.ts` define the backend split and the experimental local engine.
+- `src/types/protocol_v2.ts` defines the loop status model, the client-side tool phase, queue messages, and the memory and channel state surfaces.
+- `src/websocket/listener/turn-setup.ts`, `src/websocket/listener/turn-lifecycle.ts`, and `src/websocket/listener/protocol-outbound.ts` show turn setup, lifecycle transitions, and outbound status updates.
+- `src/agent/memory-filesystem.ts` and `src/queue/turn-queue-runtime.ts` show the memory directory layout and turn input merging.
+- `src/tools/manager.ts`, `src/mods/mod-engine.ts`, and `src/channels/registry.ts` show tool assembly, local extensions, and channel ingress.
+- `src/app-server-client.ts`, `letta-agent-sdk/src/protocol.ts`, `letta-agent-sdk/src/session.ts`, and `letta-agent-sdk/src/app-server-session.ts` define the app server transport and SDK session boundary.

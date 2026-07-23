@@ -1,74 +1,64 @@
 ---
 title: Conversations, Queues, and Interrupts
 url: "docs/conversations-queues-and-interrupts"
-description: How one agent owns many conversations, how each conversation serializes turns, and how interrupts and crons feed the same queue.
+description: "Agents vs conversations, turn serialization, steering mid-run, and self-scheduling."
 ---
 
-The agent harness keeps durable agent memory separate from conversation-scoped execution state. The [memory page](/letta-agent/memory) covers that boundary; this page focuses on how a single agent owns many conversations, how each conversation serializes turn work, and how interrupts and scheduled work enter the same flow.
+This page picks up where [Anatomy of a Turn](./01-anatomy-of-a-turn.md) ends. It explains how Letta Code keeps many conversations ordered while one long-lived agent runs them, how the listener interrupts a live turn without losing state, and how cron work joins the same queue. For durable memory, see [Memory Blocks and the Memory Filesystem](./03-memory-blocks-and-the-memory-filesystem.md) and the official [memory docs](https://docs.letta.com/letta-agent/memory).
 
 ## One agent, many conversations
 
-The listener treats the agent as a long-lived identity and the conversation as the unit of execution. A single agent can own many conversations at once, but each conversation keeps its own queue, its own turn lifecycle, and its own live interruption state.
+The harness keeps agent identity separate from conversation state. `ListenerRuntime` carries the long-lived connection, while each `ConversationRuntime` carries the queue, lifecycle, working directory, approvals, and interruption state for one conversation. That split matters because one agent can serve many conversations at once, but each conversation needs its own serialized turn flow.
 
-That split matters because durable memory does not sit inside the turn loop. The conversation runtime carries the transient state that matters for the current thread: queue depth, active turn ownership, pending approvals, interrupted results, and the current loop status. The agent-level state survives across conversations; the conversation-level state drains and resets as turns complete.
+`runtime.ts` and `types.ts` make that boundary explicit. The listener can stay alive while individual conversation runtimes appear, idle, and disappear again. The conversation runtime owns the local turn state, but the agent's durable memory and reminder sources live outside that object. That separation keeps the live execution state small and disposable while memory stays durable.
 
-## Queue serialization
+## One queue per conversation
 
-The listener attaches a `QueueRuntime` to each `ConversationRuntime`, so every inbound source converges on the same ordered queue for that conversation. Inbound user messages, task notifications, cron prompts, and mod continuations all enter that queue before the listener starts a turn.
+`conversation-runtime.ts` attaches a `QueueRuntime` to each conversation runtime. `inbound-dispatch.ts` sends ordinary user work into that queue when the conversation already owns a turn or when another source has left work behind. Different inbound surfaces converge on the same queue so the listener can preserve order without inventing separate lanes for each surface.
 
-The queue layer coalesces turn-starting items when they share the same conversation scope. That merge step lets the listener gather a burst of related work into one turn instead of starting several tiny turns back to back. The important queue kinds are:
+`queue-runtime.ts` defines the queue items that matter here: user messages, task notifications, cron prompts, approval results, overlay actions, and mod continuations. `turn-queue-runtime.ts` coalesces the turn-starting inputs before a turn begins. It merges user content, task notifications, cron prompts, and mod continuations into one turn-opening payload so the model sees one ordered batch instead of a scatter of small prompts. Approval results and overlay actions still enter the same queue, but they stay as their own items. They matter to the turn flow, yet they do not join the merged opening batch.
 
-- `message` for user input.
-- `task_notification` for task-driven follow-up.
-- `cron_prompt` for scheduled work.
-- `mod_continue` for a continuation that behaves like user text.
-- `approval_result` for control results that stay ordered but do not join the turn-starting batch.
-- `overlay_action` for overlay-side actions that also serialize through the same queue.
+That design keeps queue depth honest. The listener can show waiting work, pump it in order, and keep the conversation scoped even when the source of work changes midstream. The same queue also gives the scheduler and the interrupt path a shared landing zone, which keeps proactive work and reactive work under one serialization rule.
 
-The last two kinds matter because they still move through the same serialized line even though the turn merger does not fold them into the batch that starts a new turn. That design keeps queue order stable while preserving the difference between fresh user input and control data that steers a turn already in flight.
+## Turn ownership and leases
 
-## Turn lifecycle and lease ownership
+`TurnLifecycle` in `turn-lifecycle.ts` and the rules in `AGENTS.md` define the canonical lifecycle: `idle`, `command`, `active`, and `cancelling`. `idle` means no local owner holds the conversation. `command` covers synchronous control work such as a runtime command that needs the conversation context but does not run a live turn. `active` means a message turn or approval recovery turn owns the lease. `cancelling` means the listener has already asked the turn to stop, but the lease still belongs to that turn until the runtime settles it.
 
-`TurnLifecycle` defines the canonical `idle`, `command`, `active`, and `cancelling` states. `idle` means no local owner holds the conversation. `command` covers synchronous command work that owns the conversation before a turn begins. `active` marks a live turn with a lease, a run id, and a set of executing tool calls. `cancelling` keeps the same lease alive while the live turn winds down after an abort.
+That distinction between `command` and `active` matters. A command can update state and return without becoming a full agent turn, while an active turn can stream model output, tool results, and approval pauses. `cancelling` stays separate from `idle` because cancellation still has work to finish. The queue stays blocked until the lease settles, and the surface can show that a stop is in progress rather than pretending the turn never existed.
 
-The distinction between `command` and `active` keeps setup work separate from model execution. The distinction between `cancelling` and `idle` matters just as much: `cancelling` still blocks new ownership until the old lease settles, while `idle` says the conversation can accept new work.
+The lease rule keeps ownership strict. Only one runtime may own a conversation's turn flow at a time, and every async path must check the exact lease before it emits events or mutates state. `turn-lifecycle.ts` enforces that with `isCurrent()` checks, and `AGENTS.md` says the quiet part plainly: stale leases must emit nothing. That rule prevents late approvals, delayed tool returns, and unrelated callbacks from rewriting a turn that already moved on.
 
-The lease rule sits at the center of that model. Only one runtime may own a conversation turn flow at a time, and every state mutation after an await must check that the lease still belongs to the caller. A stale lease emits nothing and mutates nothing. That rule keeps the queue, the loop status, and the terminal state aligned even when work resumes after a delay.
+See [The App Server and the SDK](./08-the-app-server-and-the-sdk.md) for the broader protocol contract and the official [protocol lifecycle docs](https://docs.letta.com/letta-agent/app-server/protocol-lifecycle).
 
 ```mermaid
 stateDiagram-v2
     [*] --> idle
-    idle --> command: command input
-    command --> idle: command done
-    idle --> active: turn start
-    active --> cancelling: abort
-    cancelling --> idle: turn settles
-    active --> idle: turn ends
+    idle --> command: control request
+    command --> idle: command completes
+    idle --> active: turn begins
+    active --> cancelling: abort requested
+    cancelling --> idle: lease settles
 ```
 
-## How live turns move
+## A live turn stays steerable
 
-A live turn keeps accepting steering input while it runs. Ordinary follow-up input queues behind the current work, and the queue pump drains that input when the lease allows it. Interrupt and control paths can normalize tool-return data or approval responses into the interrupted turn, so the next continuation sees the same conversation thread instead of a disconnected retry.
+A running turn does not freeze the conversation. Ordinary follow-up messages queue behind the active lease, and `continuation-input.ts` appends queued input onto the in-flight turn state. Interrupt paths in `interrupts.ts` do more than stop the stream. They normalize tool returns and approval responses into the interrupted turn so the lease can settle with the right result shape. That is how an approval decision or a tool return can still belong to the turn that was already in flight.
 
-Explicit aborts request cancellation. The listener carries that request through the same lifecycle that governs the turn, so the live surfaces stay accurate while the abort runs through the system. Queue depth updates continue to reflect waiting work, loop-status updates show the current state of the turn, and the UI can surface interrupted or cancelled transitions as they happen.
+`control-inputs.ts` handles explicit aborts. It requests cancellation instead of dropping the state on the floor. The turn shifts into `cancelling`, the runtime prepares interrupted results when it needs them, and the listener keeps the queue moving only after the lease finishes. `turn-terminal.ts` then projects the settled outcome as interrupted or cancelled when the turn closes.
 
-The implementation keeps those live surfaces separate on purpose. The queue reports what waits. The lifecycle reports who owns the conversation. Interrupt handling translates in-flight tool or approval state into data the interrupted turn can consume. That separation keeps steering predictable even when a turn pauses, resumes, or exits under cancellation.
+The surface stays visible while that happens. `protocol-outbound.ts` emits queue snapshots, loop-status updates, and interrupted-status updates so the UI can show queue depth changes, live execution changes, and the final cancellation transition. That live projection matters because users need to know whether the listener still owns the turn, whether the queue has work waiting, and whether an abort has already changed the outcome.
 
-## Self-scheduling
+## Self-scheduling joins the same queue
 
-The cron scheduler runs in process, claims its own lease, and ticks once per minute. On each tick it checks the active cron file, finds matching work, and hands that work into the same conversation queue used by user input and task notifications.
+Cron work does not run as a transport heartbeat or a background think loop. `src/cron/scheduler.ts` claims a scheduler lease in `src/cron/cron-file.ts`, wakes once a minute, checks active tasks with `cronMatchesTime()` from `src/cron/parse-interval.ts`, and hands each matched fire to the same conversation queue as user input. `crons.json` stores the scheduler owner and task list, so only one process drives cron firing at a time.
 
-That design keeps proactive work on the same path as ordinary inbound work. Crons, scheduled tasks, and reflection each represent intentional activity, not a transport heartbeat or an old background think loop. The [scheduling page](/letta-agent/scheduling) covers that broader runtime model. The scheduler only decides when to enqueue the work; the conversation queue and turn lifecycle decide when the work can start.
-
-The scheduler also keeps its own file-backed ownership rule. One process claims the lease, another process yields, and the scheduler recovers stale ownership before tasks fire. That matches the rest of the listener model: a single owner governs a single flow, and the queue stays the source of truth for what runs next.
+That choice keeps proactive work inside the normal turn machinery. A schedule can open a new conversation or target an existing one, but the scheduler still feeds the normal turn path. Reflection uses the same idea elsewhere in the harness: proactive work enters the turn path instead of a separate always-on loop. The public [scheduling docs](https://docs.letta.com/letta-agent/scheduling) describe the product surface of the same behavior.
 
 ## Where to look in the code
 
-- `src/websocket/listener/runtime.ts` and `src/websocket/listener/types.ts` keep agent identity separate from conversation-scoped runtime state.
-- `src/websocket/listener/turn-lifecycle.ts` and `src/websocket/listener/AGENTS.md` define the `idle`, `command`, `active`, and `cancelling` model and the lease rule.
-- `src/queue/queue-runtime.ts`, `src/queue/turn-queue-runtime.ts`, and `src/websocket/listener/queue.ts` handle queue ordering, coalescing, and queue pump behavior.
-- `src/websocket/listener/inbound-queue.ts` and `src/websocket/listener/inbound-dispatch.ts` decide when inbound work enters the queue and when it runs immediately.
-- `src/websocket/listener/interrupts.ts`, `src/websocket/listener/control-inputs.ts`, `src/websocket/listener/continuation-input.ts`, and `src/websocket/listener/turn-terminal.ts` handle interruption, cancellation, and terminal projection.
-- `src/cron/scheduler.ts`, `src/cron/cron-file.ts`, and `src/cron/parse-interval.ts` implement proactive scheduling and the lease-backed cron file model.
-
-For the broader site map and the adjacent field-guide pages, see [Anatomy of a Turn](01-anatomy-of-a-turn.md), [Dreaming and Reflection](04-dreaming-and-reflection.md), and the [protocol lifecycle page](/letta-agent/app-server/protocol-lifecycle).
+- `src/websocket/listener/runtime.ts` and `src/websocket/listener/types.ts` — conversation scope, listener scope, and the live state that each runtime owns.
+- `src/websocket/listener/turn-lifecycle.ts` and `src/websocket/listener/AGENTS.md` — the canonical lifecycle, lease ownership, cancellation, and stale-lease rules.
+- `src/websocket/listener/conversation-runtime.ts`, `src/websocket/listener/inbound-dispatch.ts`, and `src/websocket/listener/queue.ts` — queue attachment, inbound routing, and pump behavior.
+- `src/queue/queue-runtime.ts`, `src/queue/turn-queue-runtime.ts`, and `src/websocket/listener/inbound-queue.ts` — queue item kinds and the merged turn-opening batch.
+- `src/websocket/listener/interrupts.ts`, `src/websocket/listener/control-inputs.ts`, `src/websocket/listener/continuation-input.ts`, and `src/websocket/listener/turn-terminal.ts` — interrupt normalization, cancellation, and turn settlement.
+- `src/cron/scheduler.ts`, `src/cron/cron-file.ts`, and `src/cron/parse-interval.ts` — cron lease ownership, schedule matching, and queue handoff.

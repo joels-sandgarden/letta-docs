@@ -1,60 +1,74 @@
 ---
 title: Memory Blocks and the Memory Filesystem
 url: "docs/memory-blocks-and-the-memory-filesystem"
-description: "How the v2 harness splits agent memory between tiny always in context blocks and git tracked MemFS."
+description: "The two-layer memory model: persona/human blocks and the git-tracked MemFS."
 ---
 
-The Letta agent harness, `letta-code`, keeps a small always in-context memory layer because an agent can run for a long time and still need stable identity and relationship context. It pairs that layer with a git-tracked `MemFS` tree for durable state. The older v1 pages for [Memory Blocks](https://docs.letta.com/guides/core-concepts/memory/memory-blocks) and [Stateful Agents](https://docs.letta.com/guides/core-concepts/stateful-agents) are historical lineage only; they do not describe the current v2 harness. For feature-level usage, see the official memory docs at [docs.letta.com/letta-agent/memory](https://docs.letta.com/letta-agent/memory).
+The Letta agent harness, Letta Code, keeps memory alive for agents that can run for a long time by splitting memory into two layers. The first layer stays tiny and always in context: `persona` and `human` carry identity and relationship context. The second layer lives in MemFS tracked by git and holds the durable material that accumulates over time. The older v1 pages for [Memory Blocks](https://docs.letta.com/guides/core-concepts/memory/memory-blocks) and [Stateful Agents](https://docs.letta.com/guides/core-concepts/stateful-agents) are historical lineage only; they do not describe the current v2 harness. For feature-level usage, see [official memory docs](https://docs.letta.com/letta-agent/memory).
 
-## The two memory layers
+## Layer 1: memory blocks
 
-### Layer one: always in context blocks
+`src/agent/memory.ts` defines the default block labels `persona` and `human`, and it loads them from `src/agent/prompts/persona.mdx` and `src/agent/prompts/human.mdx`. Those MDX files seed the prompt with who the agent is and what it knows about the person it is working with.
 
-`src/agent/memory.ts` defines two default block labels, `persona` and `human`. The harness seeds those blocks from `src/agent/prompts/persona.mdx` and `src/agent/prompts/human.mdx`, so the agent starts each run with the same identity and relationship context.
+These blocks do one job: they keep identity and relationship context near the model on every turn. They do not try to act as a general knowledge store, and the harness treats them as prompt seeding rather than as a user-facing editing surface.
 
-These blocks do not act as a general knowledge store. They carry the small amount of information that must remain visible on every turn, such as who the agent is and how it should relate to the person or system it serves. The harness manages that seeding path; it does not expose the blocks as a broad user editing surface.
+## Layer 2: MemFS
 
-### Layer two: the MemFS filesystem
+`src/agent/memory-filesystem.ts` scopes each agent's memory to `~/.letta/agents/<agentId>/memory` and creates the `system/` directory that the prompt compiler reads first. That filesystem holds the memory blocks themselves, plus notes and agent-scoped skills, and it becomes the durable memory tree for the agent.
 
-`src/agent/memory-filesystem.ts` scopes memory to `~/.letta/agents/<agentId>/memory`, creates the `system/` directory, and enables MemFS for both local and cloud backends. That filesystem holds the memory blocks themselves, plus notes and agent-scoped skills.
-
-The harness tracks `MemFS` in git. `src/agent/memory-git.ts`, `src/agent/memory-git-hooks.ts`, and `src/agent/memory-git-signing.ts` show the supporting pieces: the harness installs pre and post commit hooks, records memory changes as commits, and disables commit signing for harness managed identities. The commit log records what the agent believed and when, making the git history the audit trail for memory state.
+Git tracking gives the durable layer auditability, rollback, portability, and an optional sync path to a remote the user owns through `/memory-repository`. The git path in `src/agent/memory-git.ts`, `src/agent/memory-git-hooks.ts`, and `src/agent/memory-git-signing.ts` installs pre-commit and post-commit hooks and turns off commit signing for harness-managed identities. The commit log records what the agent believed and when, making the git history the audit trail for memory state.
 
 ## How memory changes
 
-The in-turn write path uses `src/tools/impl/memory.ts` and `src/tools/impl/memory-apply-patch.ts`. Those tools edit memory files during a turn, and the harness commits the result after the edit lands. The agent treats memory updates as ordinary file changes, not as a special side channel.
+During a turn, `src/tools/impl/memory.ts` and `src/tools/impl/memory-apply-patch.ts` edit memory files and the harness records the result as a commit. The change stays inside the agent's memory repo, so the model sees the update on the next read without any separate manual sync step.
 
-Reflection and dreaming can also rewrite memory files after a turn. `./04-dreaming-and-reflection.md` covers that background. In v1, server-side functions wrote memory edits into a database; in v2, memory edits are file edits with git history.
+Outside the turn, reflection and dreaming can also rewrite memory files after a run; see [dreaming and reflection](./04-dreaming-and-reflection.md). In v1, server-side functions wrote memory edits into a database; in v2, memory edits are file edits with git history.
 
-## How memory enters a turn
+## How memory is read
 
-`src/backend/local/system-prompt-compilation.ts` composes the runtime prompt for the local backend. It uses `renderMemfsProjection` and `injectCoreMemory` to fold the MemFS view into the final system prompt before the model runs. That keeps prompt assembly grounded in the same files that store durable memory.
+`src/backend/local/system-prompt-compilation.ts` renders MemFS with `renderMemfsProjection` and injects the result with `injectCoreMemory`. That path turns the committed filesystem into prompt text before the model sees it.
 
-`src/websocket/listener/turn-setup.ts` rebuilds the current world before a run starts, and `src/websocket/listener/memfs-sync.ts` syncs MemFS lazily the first time a listener sees an agent. That split keeps turn setup current without making every listener preload every memory tree.
+`src/websocket/listener/turn-setup.ts` rebuilds the current world before each run, while `src/websocket/listener/memfs-sync.ts` pulls MemFS lazily when a listener first sees an agent. Operator surfaces help with inspection, but they stay off the critical path: the `/palace` memory viewers live in `src/cli/components/MemoryTabViewer.tsx`, `src/cli/components/MemfsTreeViewer.tsx`, and `src/web/generate-memory-viewer.ts`, and `/doctor` comes from `src/skills/builtin/context-doctor/SKILL.md`.
 
-The operator surfaces sit beside the runtime path, not inside it. `src/cli/components/MemoryTabViewer.tsx` and `src/cli/components/MemfsTreeViewer.tsx` expose memory under the `/palace` anchor, and `src/skills/builtin/context-doctor/SKILL.md` exposes the `/doctor` audit surface. Those views help operators inspect state; they do not define how the model reads memory during a turn.
+## What is shared vs scoped
 
-## Shared across conversations, scoped to an agent
-
-Agent memory is shared across that agent's conversations. Conversation queues stay separate, so memory does not belong to a single chat transcript or a single turn record. `./01-anatomy-of-a-turn.md` and `./02-conversations-queues-and-interrupts.md` cover the turn and queue layers that move input through the system. `./08-the-app-server-and-the-sdk.md` covers the websocket seam that can reach the same agent state from another surface.
+Agent memory belongs to the agent, not to a single conversation. Every conversation that runs under the same agent reads the same memory, while the conversation queues remain separate. That split lines up with the turn lifecycle in [Anatomy of a turn](./01-anatomy-of-a-turn.md), the queue model in [Conversations, queues, and interrupts](./02-conversations-queues-and-interrupts.md), and the app server boundary in [The app server and the SDK](./08-the-app-server-and-the-sdk.md).
 
 ```mermaid
 flowchart LR
-  Persona[persona block] --> Prompt[System prompt assembly]
-  Human[human block] --> Prompt
-  MemFS[MemFS under agent memory directory] --> Prompt
-  Tool[Memory file tools] --> Commit[Harness commits the change]
-  Reflection[Reflection writes] --> Commit
-  Commit --> MemFS
-  Prompt --> Run[Model run]
-  MemFS --> Sync[Optional sync to user owned git remote]
-  Sync --> Remote[Git remote]
+  subgraph Prompt["Layer 1: always in context"]
+    persona["persona"]
+    human["human"]
+  end
+
+  subgraph MemFS["Layer 2: MemFS"]
+    root["~/.letta/agents/<agentId>/memory/"]
+    system["system/"]
+    other["other memory files"]
+    hooks["git hooks and commit signing disabled"]
+  end
+
+  tools["memory tool\nmemory-apply-patch"]
+  reflection["reflection / dreaming"]
+  commit["harness commit"]
+  remote["optional user-owned remote\nvia /memory-repository"]
+  prompt["system prompt assembly\nrenderMemfsProjection + injectCoreMemory"]
+
+  tools --> root
+  reflection --> root
+  root --> hooks --> commit --> remote
+  root --> prompt
+  system --> prompt
+  other --> prompt
+  persona --> prompt
+  human --> prompt
 ```
 
 ## Where to look in the code
 
-- `src/agent/memory.ts`, `src/agent/prompts/persona.mdx`, and `src/agent/prompts/human.mdx` define the tiny always in-context blocks.
-- `src/agent/memory-filesystem.ts`, `src/agent/memory-git.ts`, `src/agent/memory-git-hooks.ts`, and `src/agent/memory-git-signing.ts` define the filesystem root, git tracking, hooks, and signing behavior.
-- `src/tools/impl/memory.ts` and `src/tools/impl/memory-apply-patch.ts` handle in-turn memory edits.
-- `src/backend/local/system-prompt-compilation.ts` and `src/websocket/listener/turn-setup.ts` show how the harness rebuilds context before a run.
-- `src/websocket/listener/memfs-sync.ts` handles lazy MemFS sync, while `src/cli/components/MemoryTabViewer.tsx`, `src/cli/components/MemfsTreeViewer.tsx`, `src/skills/builtin/context-doctor/SKILL.md`, and `src/cli/commands/memory-repository.ts` cover observability and user-owned sync.
+- `src/agent/memory.ts` and `src/agent/prompts/{persona,human}.mdx` define the two seeded memory blocks.
+- `src/agent/memory-filesystem.ts` sets the memory root for each agent and creates `system/`.
+- `src/agent/memory-git.ts`, `src/agent/memory-git-hooks.ts`, and `src/agent/memory-git-signing.ts` handle clone, pull, commit, hooks, and commit signing.
+- `src/tools/impl/memory.ts` and `src/tools/impl/memory-apply-patch.ts` write memory during turns.
+- `src/backend/local/system-prompt-compilation.ts`, `src/websocket/listener/turn-setup.ts`, and `src/websocket/listener/memfs-sync.ts` read and hydrate memory at runtime.
+- `src/cli/components/MemoryTabViewer.tsx`, `src/cli/components/MemfsTreeViewer.tsx`, `src/cli/commands/memory-repository.ts`, and `src/skills/builtin/context-doctor/SKILL.md` cover operator inspection, remote sync, and audits.

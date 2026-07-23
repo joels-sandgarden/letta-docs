@@ -7,7 +7,10 @@
 
 ## Pages
 
+- [The Big Picture](/docs/the-big-picture/): the map of the v2 Letta system — the harness, the backends, and what changed since MemGPT
 - [Anatomy of a Turn](/docs/anatomy-of-a-turn/): one turn traced end to end, from message to streamed reply
+- [Conversations, Queues, and Interrupts](/docs/conversations-queues-and-interrupts/): agents vs conversations, turn serialization, steering mid-run
+- [Memory Blocks and the Memory Filesystem](/docs/memory-blocks-and-the-memory-filesystem/): the two-layer memory model — blocks and the git-tracked MemFS
 - [Dreaming and Reflection](/docs/dreaming-and-reflection/): sleep-time compute — how agents rewrite their own memory in the background
 - [Skills, Subagents, and Mods](/docs/skills-subagents-and-mods/): the three extension mechanisms and why each exists
 - [Tools, Permissions, and Sandboxing](/docs/tools-permissions-and-sandboxing/): client-side tool execution and the gates around it

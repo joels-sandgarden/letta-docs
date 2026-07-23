@@ -17,7 +17,7 @@ Related pages:
 - [/06-tools-permissions-and-sandboxing.md](./06-tools-permissions-and-sandboxing.md)
 - [/08-the-app-server-and-the-sdk.md](./08-the-app-server-and-the-sdk.md)
 
-The official Letta Docs pages cover setup and configuration for [channels](/letta-agent/channels), [scheduling](/letta-agent/scheduling), and [permissions](/letta-agent/permissions). This page stays at the architecture level and shows how the pieces fit together.
+The official Letta Docs pages cover setup and configuration for [channels](https://docs.letta.com/letta-agent/channels), [scheduling](https://docs.letta.com/letta-agent/scheduling), and [permissions](https://docs.letta.com/letta-agent/permissions). This page stays at the architecture level and shows how the pieces fit together.
 
 ## Registry and plugin boundary
 

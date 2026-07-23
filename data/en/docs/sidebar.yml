@@ -1,17 +1,15 @@
 # Sidebar structure for the docs section. The theme builds each link as
 # /docs/<urlize(title)>/ — so every `title` here must urlize to the same slug
 # as the corresponding page's `url` front matter.
-#
-# TODO (pending re-fire): when the missing pages land, add
-#   - "The Big Picture" as the first Orientation entry
-#   - "Conversations, Queues, and Interrupts" + "Memory Blocks and the Memory
-#     Filesystem" at the top of Behavior
 - title: Orientation
   pages:
+    - title: The Big Picture
     - title: Anatomy of a Turn
 
 - title: Behavior
   pages:
+    - title: Conversations, Queues, and Interrupts
+    - title: Memory Blocks and the Memory Filesystem
     - title: Dreaming and Reflection
 
 - title: Extending the Agent

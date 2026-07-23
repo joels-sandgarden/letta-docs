@@ -11,8 +11,7 @@ description: A field guide to the Letta v2 agent harness — why each subsystem 
 
 btn_primary:
   label: Read the guide
-  # TODO: flip to docs/the-big-picture/ when page 00 lands (pending re-fire)
-  url: docs/anatomy-of-a-turn/
+  url: docs/the-big-picture/
 
 btn_secondary:
   label: letta-code on GitHub
